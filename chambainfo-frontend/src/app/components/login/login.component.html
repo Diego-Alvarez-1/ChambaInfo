@@ -1,0 +1,72 @@
+<div class="login-container">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="battery">100%</span>
+  </div>
+
+  <div class="login-content">
+    <div class="header">
+      <div class="header-text">
+        <h1>Iniciar sesión</h1>
+        <p>Accede a tu cuenta</p>
+      </div>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label>DNI, Celular o Email</label>
+        <input 
+          type="text" 
+          formControlName="identificacion"
+          placeholder="Ingresa tu identificación"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input 
+          type="password" 
+          formControlName="password"
+          placeholder="Ingresa tu contraseña"
+          class="form-input"
+        />
+      </div>
+
+      <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        {{ isLoading ? 'Iniciando...' : 'Iniciar sesión' }}
+      </button>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div class="register-link">
+        ¿No tienes cuenta? <a (click)="goToRegister()">Regístrate aquí</a>
+      </div>
+
+      <div class="divider">
+        <span>Selecciona tu tipo de usuario</span>
+      </div>
+
+      <div class="user-type-buttons">
+        <button 
+          type="button" 
+          class="btn-user-type btn-trabajador"
+          (click)="selectTipoUsuario('TRABAJADOR')"
+        >
+          Soy Trabajador
+        </button>
+        <button 
+          type="button" 
+          class="btn-user-type btn-empleador"
+          (click)="selectTipoUsuario('EMPLEADOR')"
+        >
+          Soy Empleador
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
