@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.chambainfo.chambainfo_backend.ChambaInfoApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.512 s -- in com.chambainfo.chambainfo_backend.ChambaInfoApplicationTests
