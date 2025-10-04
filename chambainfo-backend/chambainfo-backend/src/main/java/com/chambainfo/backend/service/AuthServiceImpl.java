@@ -1,4 +1,3 @@
-
 package com.chambainfo.backend.service;
 
 import com.chambainfo.backend.dto.*;
@@ -43,29 +42,50 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException("El DNI ya está registrado");
         }
         
-        // Consultar RENIEC para obtener el nombre completo
+        // Consultar RENIEC para obtener los datos completos
         ReniecResponseDTO reniecData;
         try {
             reniecData = reniecService.consultarDni(request.getDni());
+            log.info("✅ Datos obtenidos de RENIEC:");
+            log.info("   - DNI: {}", reniecData.getDocumentNumber());
+            log.info("   - Nombres: {}", reniecData.getFirstName());
+            log.info("   - Apellido Paterno: {}", reniecData.getFirstLastName());
+            log.info("   - Apellido Materno: {}", reniecData.getSecondLastName());
+            log.info("   - Nombre Completo: {}", reniecData.getFullName());
         } catch (ReniecException e) {
-            log.error("Error al consultar RENIEC: {}", e.getMessage());
+            log.error("❌ Error al consultar RENIEC: {}", e.getMessage());
             throw new ReniecException("No se pudo validar el DNI. Verifique que sea correcto.");
         }
         
-        // Crear el usuario
+        // Crear el usuario con TODOS los datos separados de RENIEC
         Usuario usuario = new Usuario();
         usuario.setDni(request.getDni());
+        
+        // ===== GUARDAR DATOS SEPARADOS DE RENIEC =====
+        usuario.setNombres(reniecData.getFirstName());
+        usuario.setApellidoPaterno(reniecData.getFirstLastName());
+        usuario.setApellidoMaterno(reniecData.getSecondLastName());
         usuario.setNombreCompleto(reniecData.getFullName());
+        // ============================================
+        
+        // Datos de la cuenta del usuario
         usuario.setUsuario(request.getUsuario());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         
-        // Guardar el usuario
+        // Guardar el usuario en la base de datos
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        
+        log.info("✅ Usuario registrado exitosamente en BD:");
+        log.info("   - ID: {}", usuarioGuardado.getId());
+        log.info("   - DNI: {}", usuarioGuardado.getDni());
+        log.info("   - Nombres: {}", usuarioGuardado.getNombres());
+        log.info("   - Apellido Paterno: {}", usuarioGuardado.getApellidoPaterno());
+        log.info("   - Apellido Materno: {}", usuarioGuardado.getApellidoMaterno());
+        log.info("   - Nombre Completo: {}", usuarioGuardado.getNombreCompleto());
+        log.info("   - Usuario: {}", usuarioGuardado.getUsuario());
         
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuarioGuardado.getUsuario());
-        
-        log.info("Usuario registrado exitosamente: {}", usuarioGuardado.getUsuario());
         
         return AuthResponseDTO.builder()
                 .token(token)
@@ -94,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuario.getUsuario());
         
-        log.info("Usuario autenticado exitosamente: {}", usuario.getUsuario());
+        log.info("✅ Usuario autenticado: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
         
         return AuthResponseDTO.builder()
                 .token(token)

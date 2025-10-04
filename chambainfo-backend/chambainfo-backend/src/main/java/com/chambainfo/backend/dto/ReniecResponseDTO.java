@@ -1,4 +1,3 @@
-
 package com.chambainfo.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

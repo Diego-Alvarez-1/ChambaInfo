@@ -1,4 +1,3 @@
-
 package com.chambainfo.backend.entity;
 
 import jakarta.persistence.*;
@@ -23,9 +22,21 @@ public class Usuario {
     @NotBlank(message = "El DNI es obligatorio")
     private String dni;
     
-    @Column(nullable = false)
+    // ===== CAMPOS SEPARADOS DE RENIEC =====
+    @Column(name = "nombres")
+    private String nombres;
+    
+    @Column(name = "apellido_paterno")
+    private String apellidoPaterno;
+    
+    @Column(name = "apellido_materno")
+    private String apellidoMaterno;
+    
+    // Nombre completo concatenado (como viene de RENIEC)
+    @Column(nullable = false, name = "nombre_completo")
     @NotBlank(message = "El nombre completo es obligatorio")
     private String nombreCompleto;
+    // ======================================
     
     @Column(unique = true, nullable = false)
     @NotBlank(message = "El usuario es obligatorio")

@@ -1,4 +1,3 @@
-
 package com.chambainfo.backend.service;
 
 import com.chambainfo.backend.dto.ReniecResponseDTO;
@@ -38,6 +37,7 @@ public class ReniecServiceImpl implements ReniecService {
             HttpEntity<String> entity = new HttpEntity<>(headers);
             
             log.info("Consultando RENIEC para DNI: {}", dni);
+            log.debug("URL: {}", url);
             
             ResponseEntity<ReniecResponseDTO> response = restTemplate.exchange(
                 url,
@@ -47,15 +47,26 @@ public class ReniecServiceImpl implements ReniecService {
             );
             
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                log.info("Datos obtenidos de RENIEC: {}", response.getBody().getFullName());
-                return response.getBody();
+                ReniecResponseDTO data = response.getBody();
+                
+                log.info("Respuesta exitosa de RENIEC:");
+                log.info("   - first_name: {}", data.getFirstName());
+                log.info("   - first_last_name: {}", data.getFirstLastName());
+                log.info("   - second_last_name: {}", data.getSecondLastName());
+                log.info("   - full_name: {}", data.getFullName());
+                log.info("   - document_number: {}", data.getDocumentNumber());
+                
+                return data;
             } else {
+                log.error("Respuesta inválida de RENIEC: status={}", response.getStatusCode());
                 throw new ReniecException("No se pudo obtener información del DNI");
             }
             
+        } catch (ReniecException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("Error al consultar RENIEC: {}", e.getMessage());
-            throw new ReniecException("Error al consultar DNI en RENIEC: " + e.getMessage());
+            log.error("Error al consultar RENIEC: {}", e.getMessage(), e);
+            throw new ReniecException("Error al consultar DNI en RENIEC. Verifique su conexión e intente nuevamente.");
         }
     }
 }

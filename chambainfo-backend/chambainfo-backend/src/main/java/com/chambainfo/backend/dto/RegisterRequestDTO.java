@@ -1,4 +1,3 @@
-
 package com.chambainfo.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
@@ -27,4 +26,8 @@ public class RegisterRequestDTO {
     
     @NotBlank(message = "Debe confirmar la contraseña")
     private String confirmPassword;
+
+    @NotBlank(message = "El número de celular es obligatorio")
+    @Pattern(regexp = "^[0-9]{9}$", message = "El celular debe tener 9 dígitos")
+    private String celular;
 }
