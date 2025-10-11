@@ -46,14 +46,14 @@ public class AuthServiceImpl implements AuthService {
         ReniecResponseDTO reniecData;
         try {
             reniecData = reniecService.consultarDni(request.getDni());
-            log.info("✅ Datos obtenidos de RENIEC:");
+            log.info(" Datos obtenidos de RENIEC:");
             log.info("   - DNI: {}", reniecData.getDocumentNumber());
             log.info("   - Nombres: {}", reniecData.getFirstName());
             log.info("   - Apellido Paterno: {}", reniecData.getFirstLastName());
             log.info("   - Apellido Materno: {}", reniecData.getSecondLastName());
             log.info("   - Nombre Completo: {}", reniecData.getFullName());
         } catch (ReniecException e) {
-            log.error("❌ Error al consultar RENIEC: {}", e.getMessage());
+            log.error(" Error al consultar RENIEC: {}", e.getMessage());
             throw new ReniecException("No se pudo validar el DNI. Verifique que sea correcto.");
         }
         
@@ -73,13 +73,13 @@ public class AuthServiceImpl implements AuthService {
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         
         usuario.setCelular(request.getCelular());
-        log.info("📱 Celular guardado: {}", request.getCelular());
+        log.info(" Celular guardado: {}", request.getCelular());
         // ==========================================
         
         // Guardar el usuario en la base de datos
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         
-        log.info("✅ Usuario registrado exitosamente en BD:");
+        log.info(" Usuario registrado exitosamente en BD:");
         log.info("   - ID: {}", usuarioGuardado.getId());
         log.info("   - DNI: {}", usuarioGuardado.getDni());
         log.info("   - Nombres: {}", usuarioGuardado.getNombres());
@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
                 .dni(usuarioGuardado.getDni())
                 .nombreCompleto(usuarioGuardado.getNombreCompleto())
                 .usuario(usuarioGuardado.getUsuario())
-                .celular(usuarioGuardado.getCelular())  // ✅ Ya devuelve el celular
+                .celular(usuarioGuardado.getCelular())  
                 .mensaje("Cuenta creada exitosamente")
                 .build();
     }
@@ -120,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuario.getUsuario());
         
-        log.info("✅ Usuario autenticado: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
+        log.info("Usuario autenticado: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
         
         return AuthResponseDTO.builder()
                 .token(token)
