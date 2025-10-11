@@ -72,6 +72,10 @@ public class AuthServiceImpl implements AuthService {
         usuario.setUsuario(request.getUsuario());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         
+        usuario.setCelular(request.getCelular());
+        log.info("📱 Celular guardado: {}", request.getCelular());
+        // ==========================================
+        
         // Guardar el usuario en la base de datos
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         
@@ -83,6 +87,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("   - Apellido Materno: {}", usuarioGuardado.getApellidoMaterno());
         log.info("   - Nombre Completo: {}", usuarioGuardado.getNombreCompleto());
         log.info("   - Usuario: {}", usuarioGuardado.getUsuario());
+        log.info("   - Celular: {}", usuarioGuardado.getCelular());  // ✅ Agregado
         
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuarioGuardado.getUsuario());
@@ -94,6 +99,7 @@ public class AuthServiceImpl implements AuthService {
                 .dni(usuarioGuardado.getDni())
                 .nombreCompleto(usuarioGuardado.getNombreCompleto())
                 .usuario(usuarioGuardado.getUsuario())
+                .celular(usuarioGuardado.getCelular())  // ✅ Ya devuelve el celular
                 .mensaje("Cuenta creada exitosamente")
                 .build();
     }
