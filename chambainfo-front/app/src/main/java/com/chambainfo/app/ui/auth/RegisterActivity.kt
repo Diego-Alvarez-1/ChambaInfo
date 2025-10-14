@@ -30,7 +30,9 @@ class RegisterActivity : AppCompatActivity() {
 
     private var dniVerificado = false
     private var nombresReniec = ""
-    private var apellidosReniec = ""
+    private var apellidoPaternoReniec = ""
+    private var apellidoMaternoReniec = ""
+    private var nombreCompletoReniec = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +70,46 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
+        // Observer para verificación de DNI
+        authViewModel.verificarDniResult.observe(this) { result ->
+            result.onSuccess { reniecData ->
+                // DNI verificado exitosamente
+                dniVerificado = true
+
+                // Guardar datos de RENIEC
+                nombresReniec = reniecData.firstName
+                apellidoPaternoReniec = reniecData.firstLastName
+                apellidoMaternoReniec = reniecData.secondLastName
+                nombreCompletoReniec = reniecData.fullName
+
+                // Mostrar verificación exitosa
+                binding.tvVerificado.visibility = View.VISIBLE
+                binding.tvDatosReniec.visibility = View.VISIBLE
+
+                // Autocompletar nombres y apellidos
+                binding.etNombres.setText(nombresReniec)
+                binding.etApellidos.setText("$apellidoPaternoReniec $apellidoMaternoReniec")
+
+                binding.btnCrearCuenta.isEnabled = true
+
+                Toast.makeText(this, "✓ DNI verificado correctamente", Toast.LENGTH_SHORT).show()
+            }
+
+            result.onFailure { error ->
+                // Error al verificar DNI
+                dniVerificado = false
+                binding.tvVerificado.visibility = View.GONE
+                binding.tvDatosReniec.visibility = View.GONE
+                binding.btnCrearCuenta.isEnabled = false
+
+                Toast.makeText(
+                    this,
+                    "Error: ${error.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
         authViewModel.registerResult.observe(this) { result ->
             result.onSuccess { authResponse ->
                 // Guardar datos de sesión
@@ -106,6 +148,7 @@ class RegisterActivity : AppCompatActivity() {
         authViewModel.loading.observe(this) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnCrearCuenta.isEnabled = !isLoading && dniVerificado
+            binding.btnVerificar.isEnabled = !isLoading
         }
     }
 
@@ -122,9 +165,8 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Simular verificación con RENIEC (en producción llamaría al API)
-            // Por ahora solo valida el formato y permite continuar
-            verificarDni(dni)
+            // Llamar al backend para verificar con RENIEC
+            authViewModel.verificarDni(dni)
         }
 
         binding.btnCrearCuenta.setOnClickListener {
@@ -132,29 +174,6 @@ class RegisterActivity : AppCompatActivity() {
                 registrarUsuario()
             }
         }
-    }
-
-    private fun verificarDni(dni: String) {
-        // Por ahora simulamos la verificación
-        // En producción, aquí llamarías al endpoint de RENIEC o a tu backend
-
-        dniVerificado = true
-
-        // Simular nombres obtenidos de RENIEC
-        nombresReniec = "Carlos Alberto"
-        apellidosReniec = "Quispe Torres"
-
-        // Mostrar verificación exitosa
-        binding.tvVerificado.visibility = View.VISIBLE
-        binding.tvDatosReniec.visibility = View.VISIBLE
-
-        // Autocompletar nombres y apellidos
-        binding.etNombres.setText(nombresReniec)
-        binding.etApellidos.setText(apellidosReniec)
-
-        binding.btnCrearCuenta.isEnabled = true
-
-        Toast.makeText(this, "✓ DNI verificado correctamente", Toast.LENGTH_SHORT).show()
     }
 
     private fun validarFormulario(): Boolean {
@@ -192,8 +211,9 @@ class RegisterActivity : AppCompatActivity() {
         val password = binding.etPassword.text.toString().trim()
         val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
-        // Generar usuario a partir del DNI o nombre
-        val usuario = "user_$dni"
+        // Generar usuario a partir del nombre
+        val usuario = nombresReniec.lowercase().replace(" ", ".") + "." +
+                apellidoPaternoReniec.lowercase()
 
         val registerRequest = RegisterRequest(
             dni = dni,

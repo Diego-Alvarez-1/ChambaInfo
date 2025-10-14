@@ -16,6 +16,9 @@ interface ApiService {
     @GET("auth/test")
     suspend fun test(): Response<String>
 
+    @GET("auth/verificar-dni/{dni}")
+    suspend fun verificarDni(@Path("dni") dni: String): Response<ReniecResponse>
+
     // Empleos Endpoints
     @GET("empleos")
     suspend fun obtenerTodosLosEmpleos(): Response<List<Empleo>>

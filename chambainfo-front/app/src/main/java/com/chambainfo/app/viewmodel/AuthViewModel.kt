@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.chambainfo.app.data.model.AuthResponse
 import com.chambainfo.app.data.model.LoginRequest
 import com.chambainfo.app.data.model.RegisterRequest
+import com.chambainfo.app.data.model.ReniecResponse
 import com.chambainfo.app.data.repository.AuthRepository
 import kotlinx.coroutines.launch
 
@@ -19,6 +20,9 @@ class AuthViewModel : ViewModel() {
 
     private val _loginResult = MutableLiveData<Result<AuthResponse>>()
     val loginResult: LiveData<Result<AuthResponse>> = _loginResult
+
+    private val _verificarDniResult = MutableLiveData<Result<ReniecResponse>>()
+    val verificarDniResult: LiveData<Result<ReniecResponse>> = _verificarDniResult
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
@@ -57,6 +61,28 @@ class AuthViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _loginResult.value = Result.failure(e)
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun verificarDni(dni: String) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                val response = repository.verificarDni(dni)
+                if (response.isSuccessful && response.body() != null) {
+                    _verificarDniResult.value = Result.success(response.body()!!)
+                } else {
+                    _verificarDniResult.value = Result.failure(
+                        Exception("DNI no encontrado en RENIEC")
+                    )
+                }
+            } catch (e: Exception) {
+                _verificarDniResult.value = Result.failure(
+                    Exception("Error al verificar DNI: ${e.message}")
+                )
             } finally {
                 _loading.value = false
             }

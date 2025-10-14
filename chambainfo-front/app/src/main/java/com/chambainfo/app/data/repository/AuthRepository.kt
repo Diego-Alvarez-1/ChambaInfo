@@ -4,6 +4,7 @@ import com.chambainfo.app.data.api.RetrofitClient
 import com.chambainfo.app.data.model.AuthResponse
 import com.chambainfo.app.data.model.LoginRequest
 import com.chambainfo.app.data.model.RegisterRequest
+import com.chambainfo.app.data.model.ReniecResponse
 import retrofit2.Response
 
 class AuthRepository {
@@ -20,5 +21,9 @@ class AuthRepository {
 
     suspend fun test(): Response<String> {
         return apiService.test()
+    }
+
+    suspend fun verificarDni(dni: String): Response<ReniecResponse> {
+        return apiService.verificarDni(dni)
     }
 }
