@@ -1,0 +1,128 @@
+<resources>
+    <string name="app_name">ChambaInfo</string>
+
+    <!-- Auth -->
+    <string name="iniciar_sesion">Iniciar sesión</string>
+    <string name="crear_cuenta">Crear cuenta</string>
+    <string name="dni_celular_email">DNI, Celular o Email</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="confirmar_contrasena">Confirmar contraseña</string>
+    <string name="olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="no_tienes_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="soy_trabajador">Soy Trabajador</string>
+    <string name="soy_empleador">Soy Empleador</string>
+    <string name="selecciona_tipo_usuario">Selecciona tu tipo de usuario</string>
+
+    <!-- Register -->
+    <string name="para_publicar_empleos">Para publicar empleos</string>
+    <string name="accede_a_tu_cuenta">Accede a tu cuenta</string>
+    <string name="ingresa_identificacion">Ingresa tu identificación</string>
+    <string name="ingresa_contrasena">Ingresa tu contraseña</string>
+    <string name="dni">DNI</string>
+    <string name="verificar">Verificar</string>
+    <string name="verificado">✓ Verificado</string>
+    <string name="datos_validados_reniec">Datos validados con RENIEC ✓</string>
+    <string name="nombres">Nombres</string>
+    <string name="apellidos">Apellidos</string>
+    <string name="celular_obligatorio">Celular (obligatorio)</string>
+    <string name="correo_opcional">Correo electrónico (opcional)</string>
+    <string name="al_registrarte_aceptas">Al registrarte aceptas los</string>
+    <string name="terminos_condiciones">Términos y Condiciones</string>
+
+    <!-- Main -->
+    <string name="chambainfo">ChambaInfo</string>
+    <string name="empleos_rapidos_arequipa">Empleos rápidos en Arequipa</string>
+    <string name="publicar_empleo">Publicar empleo</string>
+    <string name="quieres_publicar">¿Quieres publicar un empleo?</string>
+    <string name="conecta_trabajadores">Conecta con trabajadores de manera rápida y directa</string>
+    <string name="comenzar_ahora">Comenzar ahora</string>
+    <string name="ultimos_10_dias">Últimos 10 días</string>
+    <string name="buscar_puesto_distrito">Buscar por puesto o distrito...</string>
+    <string name="atencion_cliente">Atención al Cliente</string>
+    <string name="construccion">Construcción</string>
+    <string name="cocina_restaurantes">Cocina y Restaurantes</string>
+    <string name="limpieza">Limpieza</string>
+    <string name="delivery_transporte">Delivery y Transporte</string>
+    <string name="ver">Ver</string>
+
+    <!-- Publicar Empleo -->
+    <string name="completa_campos_obligatorios">Completa los campos obligatorios</string>
+    <string name="nombre_empleo">Nombre del empleo *</string>
+    <string name="ejemplo_cajero">Ej. Cajero/a, Albañil, Cocinero...</string>
+    <string name="descripcion_empleo">Descripción del empleo *</string>
+    <string name="detalla_responsabilidades">Detalla las responsabilidades, horarios, requisitos, etc.</string>
+    <string name="numero_celular_contacto">Número de celular de contacto *</string>
+    <string name="mostrar_numero_oferta">Mostrar mi número en la oferta</string>
+    <string name="si_desactivas_opcion">Si desactivas esta opción, los postulantes deberán registrarse y solo tú podrás ver sus datos.</string>
+    <string name="campos_opcionales">Campos opcionales</string>
+    <string name="ubicacion">Ubicación</string>
+    <string name="distrito_ciudad">Distrito, ciudad</string>
+    <string name="salario">Salario</string>
+    <string name="ejemplo_salario">Ej. S/ 40/día</string>
+    <string name="ruc_aplica">RUC (si aplica)</string>
+    <string name="para_empresas_formales">Para empresas formales</string>
+    <string name="adjuntos_opcional">Adjuntos (opcional)</string>
+    <string name="choose_files">Choose Files</string>
+    <string name="no_file_chosen">No file chosen</string>
+    <string name="imagenes_logos_documentos">Imágenes, logos o documentos relacionados</string>
+    <string name="por_favor_completa_campos">Por favor completa los campos obligatorios</string>
+
+    <!-- Detalle Empleo -->
+    <string name="detalle_trabajo">Detalle del Trabajo</string>
+    <string name="puesto">PUESTO</string>
+    <string name="empleador">EMPLEADOR</string>
+    <string name="descripcion">DESCRIPCIÓN</string>
+    <string name="celular_contacto">CELULAR DE CONTACTO</string>
+    <string name="informacion_adicional">INFORMACIÓN ADICIONAL</string>
+    <string name="ubicacion_label">• Ubicación:</string>
+    <string name="salario_label">• Salario:</string>
+    <string name="horario_label">• Horario:</string>
+    <string name="para_postular_necesitas_registrarte">📌 Para postular a este empleo necesitas registrarte</string>
+    <string name="puedes_contactar_directamente">Puedes contactar directamente al empleador a través de WhatsApp o Telegram</string>
+    <string name="contactar_whatsapp">Contactar por WhatsApp</string>
+    <string name="contactar_telegram">Contactar por Telegram</string>
+
+    <!-- Perfil -->
+    <string name="mi_perfil">Mi Perfil</string>
+    <string name="numero_celular">Número de celular</string>
+    <string name="correo_electronico">Correo electrónico</string>
+    <string name="habilidades_opcional">Habilidades (opcional)</string>
+    <string name="experiencia_laboral_opcional">Experiencia laboral (opcional)</string>
+    <string name="ver_mis_documentos">Ver mis documentos</string>
+    <string name="guardar_cambios">Guardar cambios</string>
+    <string name="trabajador_verificado">Trabajador verificado ✓</string>
+
+    <!-- Términos -->
+    <string name="terminos_condiciones_chambainfo">Términos y Condiciones de ChambaInfo</string>
+    <string name="terminos_titulo_1">1. Aceptación de términos</string>
+    <string name="terminos_texto_1">Al acceder y utilizar ChambaInfo, aceptas estos términos y condiciones en su totalidad. Si no estás de acuerdo con alguna parte de estos términos, no debes utilizar nuestra plataforma.</string>
+    <string name="terminos_titulo_2">2. Registro y cuentas de usuario</string>
+    <string name="terminos_texto_2_1">2.1 Para acceder a ciertas funciones de la plataforma, deberás registrarte proporcionando información precisa y completa.</string>
+    <string name="terminos_texto_2_2">2.2 Eres responsable de mantener la confidencialidad de tu cuenta y contraseña.</string>
+    <string name="terminos_texto_2_3">2.3 La información proporcionada será verificada mediante la API de RENIEC para garantizar la autenticidad de los usuarios.</string>
+    <string name="terminos_titulo_3">3. Publicación de empleos</string>
+    <string name="terminos_texto_3_1">3.1 Los empleadores son responsables de la veracidad de la información proporcionada en sus publicaciones.</string>
+    <string name="terminos_texto_3_2">3.2 ChambaInfo no es responsable de las condiciones laborales ni de las negociaciones entre empleadores y trabajadores.</string>
+    <string name="terminos_texto_3_3">3.3 Nos reservamos el derecho de eliminar publicaciones que consideren fraudulentas o que violen nuestras políticas.</string>
+    <string name="terminos_titulo_4">4. Privacidad y protección de datos</string>
+    <string name="terminos_texto_4_1">4.1 La información personal se tratará de acuerdo con nuestra Política de Privacidad.</string>
+    <string name="terminos_texto_4_2">4.2 Al registrarte, autorizas el uso de tus datos para los fines descritos en dicha política.</string>
+    <string name="acepto_terminos">Acepto los términos y condiciones</string>
+
+    <!-- Mensajes -->
+    <string name="operacion_exitosa">¡Operación exitosa!</string>
+    <string name="empleo_publicado_correctamente">Empleo publicado correctamente</string>
+    <string name="oferta_visible_trabajadores">Tu oferta ya está visible para todos los trabajadores. Te notificaremos cuando recibas postulaciones.</string>
+    <string name="entendido">Entendido</string>
+    <string name="error_validacion">Error de validación</string>
+    <string name="contrasenas_no_coinciden">Las contraseñas no coinciden</string>
+    <string name="verifica_contrasenas_identicas">Por favor verifica que ambas contraseñas sean idénticas.</string>
+    <string name="cuenta_creada_exitosamente">Cuenta creada exitosamente</string>
+    <string name="bienvenido_chambainfo">Bienvenido a ChambaInfo</string>
+    <string name="error">Error</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="cargando">Cargando...</string>
+    <string name="sin_conexion">Sin conexión a internet</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+</resources>
