@@ -78,10 +78,12 @@
                 android:layout_marginTop="8dp">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:layout_marginTop="8dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxStrokeColor="@color/primary_blue"
+                    app:hintTextColor="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDni"
@@ -89,7 +91,9 @@
                         android:layout_height="wrap_content"
                         android:hint="45678912"
                         android:inputType="number"
-                        android:maxLength="8" />
+                        android:maxLength="8"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

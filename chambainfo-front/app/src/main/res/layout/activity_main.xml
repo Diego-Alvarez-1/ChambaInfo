@@ -3,13 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_gray">
+    android:background="@color/background_gray"
+    android:fitsSystemWindows="true">
 
     <!-- AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue">
+        android:background="@color/primary_blue"
+        android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -31,6 +33,16 @@
                     android:textColor="@color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/btnPerfil"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_person_white"
+                    android:contentDescription="Mi Perfil"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnPublicarEmpleo"
@@ -120,19 +132,26 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:startIconDrawable="@android:drawable/ic_menu_search">
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:boxStrokeColor="@color/primary_blue"
+                app:hintTextColor="@color/text_secondary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etBuscar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/buscar_puesto_distrito"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Categorías -->
+
+            <!-- Atención al Cliente -->
             <TextView
+                android:id="@+id/tvCategoriaAtencion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -142,7 +161,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- RecyclerView Empleos Atención al Cliente -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvEmpleosAtencion"
                 android:layout_width="match_parent"
@@ -154,6 +172,7 @@
 
             <!-- Construcción -->
             <TextView
+                android:id="@+id/tvCategoriaConstruccion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -174,6 +193,7 @@
 
             <!-- Cocina y Restaurantes -->
             <TextView
+                android:id="@+id/tvCategoriaCocina"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -194,6 +214,7 @@
 
             <!-- Limpieza -->
             <TextView
+                android:id="@+id/tvCategoriaLimpieza"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -214,6 +235,7 @@
 
             <!-- Delivery y Transporte -->
             <TextView
+                android:id="@+id/tvCategoriaDelivery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -228,9 +250,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:clipToPadding="false" />
+
+            <!-- Otros -->
+            <TextView
+                android:id="@+id/tvCategoriaOtros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Otros"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEmpleosOtros"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
+                android:paddingBottom="80dp"
                 android:clipToPadding="false" />
 
         </LinearLayout>
