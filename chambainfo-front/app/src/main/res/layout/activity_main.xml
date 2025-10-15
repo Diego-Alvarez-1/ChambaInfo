@@ -44,16 +44,18 @@
                     android:contentDescription="Mi Perfil"
                     android:visibility="gone" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPublicarEmpleo"
-                    style="@style/Button.Primary"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginEnd="8dp"
-                    android:backgroundTint="@color/white"
                     android:text="@string/publicar_empleo"
                     android:textColor="@color/primary_blue"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="8dp"
+                    style="@style/Widget.MaterialComponents.Button" />
 
             </LinearLayout>
 

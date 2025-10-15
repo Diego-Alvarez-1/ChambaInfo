@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("   - Apellido Materno: {}", usuarioGuardado.getApellidoMaterno());
         log.info("   - Nombre Completo: {}", usuarioGuardado.getNombreCompleto());
         log.info("   - Usuario: {}", usuarioGuardado.getUsuario());
-        log.info("   - Celular: {}", usuarioGuardado.getCelular());  // ✅ Agregado
+        log.info("   - Celular: {}", usuarioGuardado.getCelular());
         
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuarioGuardado.getUsuario());
@@ -103,25 +103,54 @@ public class AuthServiceImpl implements AuthService {
                 .mensaje("Cuenta creada exitosamente")
                 .build();
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public AuthResponseDTO login(LoginRequestDTO request) {
-        
-        // Buscar usuario
-        Usuario usuario = usuarioRepository.findByUsuario(request.getUsuario())
-                .orElseThrow(() -> new BadCredentialsException("Usuario o contraseña incorrectos"));
-        
-        // Verificar contraseña
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+
+        String identificador = request.getUsuario();
+        log.info("🔍 Intento de login con identificador: {}", identificador);
+
+        // Buscar usuario por DNI, Celular o Usuario
+        Usuario usuario = null;
+
+        // Intentar buscar por DNI (8 dígitos)
+        if (identificador.matches("^[0-9]{8}$")) {
+            log.info("   → Buscando por DNI...");
+            usuario = usuarioRepository.findByDni(identificador).orElse(null);
+        }
+
+        // Si no se encontró, intentar buscar por Celular (9 dígitos)
+        if (usuario == null && identificador.matches("^[0-9]{9}$")) {
+            log.info("   → Buscando por Celular...");
+            usuario = usuarioRepository.findByCelular(identificador).orElse(null);
+        }
+
+        // Si no se encontró, buscar por nombre de usuario
+        if (usuario == null) {
+            log.info("   → Buscando por Usuario...");
+            usuario = usuarioRepository.findByUsuario(identificador).orElse(null);
+        }
+
+        // Si no se encontro, lanzar error
+        if (usuario == null) {
+            log.error("Usuario no encontrado con identificador: {}", identificador);
             throw new BadCredentialsException("Usuario o contraseña incorrectos");
         }
-        
+
+        log.info("Usuario encontrado: {}", usuario.getUsuario());
+
+        // Verificar contraseña
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+            log.error("Contraseña incorrecta para usuario: {}", usuario.getUsuario());
+            throw new BadCredentialsException("Usuario o contraseña incorrectos");
+        }
+
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuario.getUsuario());
-        
-        log.info("Usuario autenticado: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
-        
+
+        log.info("Login exitoso para: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
+
         return AuthResponseDTO.builder()
                 .token(token)
                 .type("Bearer")
