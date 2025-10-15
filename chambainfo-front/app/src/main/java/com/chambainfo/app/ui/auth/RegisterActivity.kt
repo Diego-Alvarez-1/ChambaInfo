@@ -92,7 +92,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 binding.btnCrearCuenta.isEnabled = true
 
-                Toast.makeText(this, "✓ DNI verificado correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "DNI verificado correctamente", Toast.LENGTH_SHORT).show()
             }
 
             result.onFailure { error ->

@@ -109,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO login(LoginRequestDTO request) {
 
         String identificador = request.getUsuario();
-        log.info("🔍 Intento de login con identificador: {}", identificador);
+        log.info("Intento de login con identificador: {}", identificador);
 
         // Buscar usuario por DNI, Celular o Usuario
         Usuario usuario = null;
