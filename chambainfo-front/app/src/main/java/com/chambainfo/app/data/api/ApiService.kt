@@ -1,6 +1,7 @@
 package com.chambainfo.app.data.api
 
 import com.chambainfo.app.data.model.*
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -145,5 +146,72 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("empleoId") empleoId: Long
     ): Response<Boolean>
+
+    // Documentos Endpoints
+    /**
+     * Sube la foto del anverso del DNI del usuario.
+     *
+     * @param token El token de autenticación del usuario (formato: "Bearer {token}").
+     * @param file El archivo de imagen del DNI (anverso).
+     * @return Una respuesta con la URL del archivo subido.
+     */
+    @Multipart
+    @POST("documentos/dni/anverso")
+    suspend fun subirDniAnverso(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
+
+    /**
+     * Sube la foto del reverso del DNI del usuario.
+     *
+     * @param token El token de autenticación del usuario (formato: "Bearer {token}").
+     * @param file El archivo de imagen del DNI (reverso).
+     * @return Una respuesta con la URL del archivo subido.
+     */
+    @Multipart
+    @POST("documentos/dni/reverso")
+    suspend fun subirDniReverso(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
+
+    /**
+     * Sube el Certificado Único Laboral (CUL) del usuario.
+     *
+     * @param token El token de autenticación del usuario (formato: "Bearer {token}").
+     * @param file El archivo del CUL (PDF o imagen).
+     * @return Una respuesta con la URL del archivo subido.
+     */
+    @Multipart
+    @POST("documentos/cul")
+    suspend fun subirCUL(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
+
+    /**
+     * Obtiene los documentos del usuario autenticado.
+     *
+     * @param token El token de autenticación del usuario (formato: "Bearer {token}").
+     * @return Una respuesta con las URLs de los documentos del usuario.
+     */
+    @GET("documentos/mis-documentos")
+    suspend fun obtenerMisDocumentos(
+        @Header("Authorization") token: String
+    ): Response<Map<String, String>>
+
+    /**
+     * Elimina un documento específico del usuario.
+     *
+     * @param token El token de autenticación del usuario (formato: "Bearer {token}").
+     * @param tipoDocumento El tipo de documento a eliminar (dni_anverso, dni_reverso, cul).
+     * @return Una respuesta con un mensaje de confirmación.
+     */
+    @DELETE("documentos/{tipoDocumento}")
+    suspend fun eliminarDocumento(
+        @Header("Authorization") token: String,
+        @Path("tipoDocumento") tipoDocumento: String
+    ): Response<Map<String, String>>
 
 }

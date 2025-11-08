@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/empleos/{id}").permitAll()
                         .requestMatchers("/empleos/empleador/**").permitAll()
                         .requestMatchers("/postulaciones/**").authenticated()
+                        .requestMatchers("/documentos/**").authenticated()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )

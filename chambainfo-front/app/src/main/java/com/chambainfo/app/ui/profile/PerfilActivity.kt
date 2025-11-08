@@ -1,5 +1,6 @@
 package com.chambainfo.app.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -38,7 +39,8 @@ class PerfilActivity : AppCompatActivity() {
         }
 
         binding.btnVerDocumentos.setOnClickListener {
-            // Funcionalidad futura
+            startActivity(Intent(this, VerDocumentosActivity::class.java))
+
         }
 
         binding.btnGuardarCambios.setOnClickListener {

@@ -216,8 +216,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/ver_mis_documentos"
-                android:enabled="false" />
+                android:text="@string/ver_mis_documentos" />
 
             <!-- Botón Guardar cambios (deshabilitado) -->
             <Button

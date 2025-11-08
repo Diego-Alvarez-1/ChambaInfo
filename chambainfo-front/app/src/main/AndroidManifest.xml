@@ -44,6 +44,10 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.profile.PerfilActivity" />
 
+        <activity
+            android:name=".ui.profile.VerDocumentosActivity"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
