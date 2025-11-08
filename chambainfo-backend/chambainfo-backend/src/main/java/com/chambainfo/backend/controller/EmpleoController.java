@@ -99,7 +99,7 @@ public class EmpleoController {
             @PathVariable Long id,
             Authentication authentication) {
 
-        log.info("🗑Solicitud para desactivar empleo ID: {}", id);
+        log.info("Solicitud para desactivar empleo ID: {}", id);
 
         String usuarioAutenticado = authentication.getName();
         empleoService.desactivarEmpleo(id, usuarioAutenticado);

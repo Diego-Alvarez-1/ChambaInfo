@@ -35,7 +35,7 @@ public class PostulacionServiceImpl implements PostulacionService {
     @Override
     @Transactional
     public PostulacionResponse postular(PostulacionRequest request, String usuarioAutenticado) {
-        log.info("📝 Postulación recibida para empleo ID: {}", request.getEmpleoId());
+        log.info("Postulación recibida para empleo ID: {}", request.getEmpleoId());
 
         Empleo empleo = empleoRepository.findById(request.getEmpleoId())
                 .orElseThrow(() -> new RuntimeException("Empleo no encontrado"));
@@ -56,7 +56,7 @@ public class PostulacionServiceImpl implements PostulacionService {
 
         Postulacion guardada = postulacionRepository.save(postulacion);
 
-        log.info("✅ Postulación guardada - ID: {}", guardada.getId());
+        log.info("Postulación guardada - ID: {}", guardada.getId());
 
         return convertirADTO(guardada);
     }
@@ -70,7 +70,7 @@ public class PostulacionServiceImpl implements PostulacionService {
     @Override
     @Transactional(readOnly = true)
     public List<PostulacionResponse> obtenerPostulacionesPorEmpleo(Long empleoId) {
-        log.info("🔍 Obteniendo postulaciones para empleo ID: {}", empleoId);
+        log.info("Obteniendo postulaciones para empleo ID: {}", empleoId);
 
         List<Postulacion> postulaciones =
                 postulacionRepository.findByEmpleoIdOrderByFechaPostulacionDesc(empleoId);

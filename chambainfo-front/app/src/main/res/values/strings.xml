@@ -20,8 +20,8 @@
     <string name="ingresa_contrasena">Ingresa tu contraseña</string>
     <string name="dni">DNI</string>
     <string name="verificar">Verificar</string>
-    <string name="verificado">✓ Verificado</string>
-    <string name="datos_validados_reniec">Datos validados con RENIEC ✓</string>
+    <string name="verificado">Verificado</string>
+    <string name="datos_validados_reniec">Datos validados con RENIEC</string>
     <string name="nombres">Nombres</string>
     <string name="apellidos">Apellidos</string>
     <string name="celular_obligatorio">Celular (obligatorio)</string>
@@ -77,7 +77,7 @@
     <string name="ubicacion_label">• Ubicación:</string>
     <string name="salario_label">• Salario:</string>
     <string name="horario_label">• Horario:</string>
-    <string name="para_postular_necesitas_registrarte">📌 Para postular a este empleo necesitas registrarte</string>
+    <string name="para_postular_necesitas_registrarte">Para postular a este empleo necesitas registrarte</string>
     <string name="puedes_contactar_directamente">Puedes contactar directamente al empleador a través de WhatsApp o Telegram</string>
     <string name="contactar_whatsapp">Contactar por WhatsApp</string>
     <string name="contactar_telegram">Contactar por Telegram</string>
@@ -90,7 +90,7 @@
     <string name="experiencia_laboral_opcional">Experiencia laboral (opcional)</string>
     <string name="ver_mis_documentos">Ver mis documentos</string>
     <string name="guardar_cambios">Guardar cambios</string>
-    <string name="trabajador_verificado">Trabajador verificado ✓</string>
+    <string name="trabajador_verificado">Trabajador verificado</string>
 
     <!-- Términos -->
     <string name="terminos_condiciones_chambainfo">Términos y Condiciones de ChambaInfo</string>
@@ -130,7 +130,7 @@
     <string name="postular_empleo">Postular a empleo</string>
     <string name="requisitos_minimos">Requisitos mínimos</string>
     <string name="para_completar_postulacion">Para completar tu postulación, proporciona la siguiente información:</string>
-    <string name="guardado_en_perfil">Guardado en tu\nperfil ✓</string>
+    <string name="guardado_en_perfil">Guardado en tu\nperfil</string>
     <string name="usar_datos_cuenta">Usar datos de cuenta</string>
     <string name="toca_adjuntar">Toca para\nadjuntar</string>
     <string name="certificado_unico_laboral">Certificado Único Laboral (CUL)</string>
