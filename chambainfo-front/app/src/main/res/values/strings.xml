@@ -125,4 +125,18 @@
     <string name="cargando">Cargando...</string>
     <string name="sin_conexion">Sin conexión a internet</string>
     <string name="cerrar_sesion">Cerrar sesión</string>
+
+    <!-- Postulación -->
+    <string name="postular_empleo">Postular a empleo</string>
+    <string name="requisitos_minimos">Requisitos mínimos</string>
+    <string name="para_completar_postulacion">Para completar tu postulación, proporciona la siguiente información:</string>
+    <string name="guardado_en_perfil">Guardado en tu\nperfil ✓</string>
+    <string name="usar_datos_cuenta">Usar datos de cuenta</string>
+    <string name="toca_adjuntar">Toca para\nadjuntar</string>
+    <string name="certificado_unico_laboral">Certificado Único Laboral (CUL)</string>
+    <string name="si_no_tienes_cul">Si no tienes CUL, puedes obtenerlo gratis en</string>
+    <string name="consejo_destacar">Consejo para destacar:</string>
+    <string name="menciona_experiencia">Menciona tu experiencia relacionada con el puesto y tu disponibilidad de horario.</string>
+    <string name="enviar_postulacion_para">Enviar postulación para \"%s\"</string>
+    <string name="empleador_recibira_info">El empleador recibirá tu información de contacto y los documentos adjuntos.</string>
 </resources>

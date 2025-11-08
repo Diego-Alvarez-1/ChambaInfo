@@ -23,6 +23,16 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * Valida las contraseñas, verifica que el usuario no exista, consulta RENIEC y genera un token JWT.
+     *
+     * @param request Los datos de registro del usuario.
+     * @return Una respuesta con los datos de autenticación del usuario registrado.
+     * @throws IllegalArgumentException Si las contraseñas no coinciden.
+     * @throws UserAlreadyExistsException Si el usuario o DNI ya está registrado.
+     * @throws ReniecException Si no se puede validar el DNI en RENIEC.
+     */
     @Override
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
@@ -104,6 +114,14 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * Inicia sesión con las credenciales del usuario.
+     * Permite iniciar sesión con DNI, celular o nombre de usuario.
+     *
+     * @param request Los datos de login (usuario y contraseña).
+     * @return Una respuesta con los datos de autenticación del usuario.
+     * @throws BadCredentialsException Si las credenciales son incorrectas.
+     */
     @Override
     @Transactional(readOnly = true)
     public AuthResponseDTO login(LoginRequestDTO request) {

@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
 
     private var todosLosEmpleos = listOf<Empleo>()
 
+    /**
+     * Inicializa la actividad y configura los componentes principales.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,6 +59,9 @@ class MainActivity : AppCompatActivity() {
         empleoViewModel.cargarEmpleos()
     }
 
+    /**
+     * Verifica si el usuario tiene una sesión activa y muestra u oculta el botón de perfil.
+     */
     private fun verificarSesion() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
@@ -67,6 +75,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura los RecyclerViews para mostrar empleos por categoría.
+     */
     private fun setupRecyclerViews() {
         binding.rvEmpleosAtencion.layoutManager = LinearLayoutManager(
             this, LinearLayoutManager.HORIZONTAL, false
@@ -88,6 +99,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * Configura los observadores para los LiveData del ViewModel.
+     */
     private fun setupObservers() {
         empleoViewModel.empleos.observe(this) { empleos ->
             todosLosEmpleos = empleos
@@ -103,6 +117,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Organiza y muestra los empleos agrupados por categorías.
+     *
+     * @param empleos La lista de empleos a categorizar y mostrar.
+     */
     private fun mostrarEmpleosPorCategoria(empleos: List<Empleo>) {
         val atencion = empleos.filter { empleo ->
             val nombre = empleo.nombreEmpleo.lowercase()
@@ -212,6 +231,14 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * Configura la visualización de una categoría de empleos en el RecyclerView.
+     *
+     * @param recyclerView El RecyclerView donde se mostrarán los empleos.
+     * @param textView El TextView que muestra el nombre de la categoría.
+     * @param empleos La lista de empleos de esta categoría.
+     * @param nombreCategoria El nombre de la categoría a mostrar.
+     */
     private fun configurarCategoria(
         recyclerView: androidx.recyclerview.widget.RecyclerView,
         textView: android.widget.TextView,
@@ -231,6 +258,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura el buscador de empleos con un TextWatcher.
+     */
     private fun setupBuscador() {
         binding.etBuscar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -244,6 +274,11 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Filtra los empleos según el texto de búsqueda ingresado.
+     *
+     * @param query El texto de búsqueda ingresado por el usuario.
+     */
     private fun filtrarEmpleos(query: String) {
         if (query.isEmpty()) {
             mostrarEmpleosPorCategoria(todosLosEmpleos)
@@ -274,6 +309,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Muestra los resultados de búsqueda en el RecyclerView.
+     *
+     * @param empleos La lista de empleos filtrados que coinciden con la búsqueda.
+     */
     private fun mostrarResultadosBusqueda(empleos: List<Empleo>) {
         ocultarTodasLasCategorias()
 
@@ -285,6 +325,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Oculta todas las categorías de empleos en la interfaz.
+     */
     private fun ocultarTodasLasCategorias() {
         binding.tvCategoriaAtencion.visibility = View.GONE
         binding.rvEmpleosAtencion.visibility = View.GONE
@@ -305,6 +348,9 @@ class MainActivity : AppCompatActivity() {
         binding.rvEmpleosOtros.visibility = View.GONE
     }
 
+    /**
+     * Configura los listeners de clic para los botones principales.
+     */
     private fun setupClickListeners() {
         // Botón de perfil
         binding.btnPerfil.setOnClickListener {
@@ -335,7 +381,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Mostrar menú de perfil con opción de cerrar sesión
+    /**
+     * Muestra un menú de diálogo con opciones del perfil del usuario.
+     */
     private fun mostrarMenuPerfil() {
         val opciones = arrayOf("Ver mi perfil", "Cerrar sesión")
 
@@ -356,7 +404,9 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    // Confirmar cierre de sesión
+    /**
+     * Muestra un diálogo de confirmación para cerrar sesión.
+     */
     private fun mostrarDialogoCerrarSesion() {
         AlertDialog.Builder(this)
             .setTitle("Cerrar sesión")
@@ -368,7 +418,9 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    // Cerrar sesión
+    /**
+     * Cierra la sesión del usuario, limpia los datos guardados y redirige al login.
+     */
     private fun cerrarSesion() {
         lifecycleScope.launch {
             tokenManager.clearAllData()
@@ -390,12 +442,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Abre la actividad de detalle de un empleo específico.
+     *
+     * @param empleoId El ID del empleo del cual se mostrará el detalle.
+     */
     private fun abrirDetalleEmpleo(empleoId: Long) {
         val intent = Intent(this, DetalleEmpleoActivity::class.java)
         intent.putExtra("EMPLEO_ID", empleoId)
         startActivity(intent)
     }
 
+    /**
+     * Se ejecuta cuando la actividad vuelve al primer plano.
+     * Recarga los empleos y verifica la sesión del usuario.
+     */
     override fun onResume() {
         super.onResume()
         // Recargar empleos cuando se vuelve a la actividad

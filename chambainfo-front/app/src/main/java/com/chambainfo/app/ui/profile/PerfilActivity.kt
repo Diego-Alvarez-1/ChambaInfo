@@ -13,6 +13,11 @@ class PerfilActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPerfilBinding
     private lateinit var tokenManager: TokenManager
 
+    /**
+     * Inicializa la actividad de perfil y configura los componentes principales.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPerfilBinding.inflate(layoutInflater)
@@ -24,6 +29,9 @@ class PerfilActivity : AppCompatActivity() {
         cargarDatosUsuario()
     }
 
+    /**
+     * Configura los listeners de clic para los botones.
+     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -38,6 +46,9 @@ class PerfilActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Carga los datos del usuario desde el almacenamiento local y los muestra en la interfaz.
+     */
     private fun cargarDatosUsuario() {
         lifecycleScope.launch {
             val nombre = tokenManager.getNombre().first()

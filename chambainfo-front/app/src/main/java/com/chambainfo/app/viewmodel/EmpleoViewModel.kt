@@ -28,6 +28,9 @@ class EmpleoViewModel : ViewModel() {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    /**
+     * Carga todos los empleos disponibles desde el servidor.
+     */
     fun cargarEmpleos() {
         viewModelScope.launch {
             try {
@@ -46,6 +49,11 @@ class EmpleoViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Carga los detalles de un empleo específico por su ID.
+     *
+     * @param id El ID del empleo a cargar.
+     */
     fun cargarEmpleoPorId(id: Long) {
         viewModelScope.launch {
             try {
@@ -64,6 +72,12 @@ class EmpleoViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Publica un nuevo empleo en el sistema.
+     *
+     * @param token El token de autenticación del usuario.
+     * @param request Los datos del empleo a publicar.
+     */
     fun publicarEmpleo(token: String, request: PublicarEmpleoRequest) {
         viewModelScope.launch {
             try {

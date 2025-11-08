@@ -11,6 +11,11 @@ class TermsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTermsBinding
     private var fromRegister = false
 
+    /**
+     * Inicializa la actividad de términos y condiciones.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTermsBinding.inflate(layoutInflater)
@@ -21,6 +26,9 @@ class TermsActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+    /**
+     * Configura los listeners de clic para los botones.
+     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             if (fromRegister) {

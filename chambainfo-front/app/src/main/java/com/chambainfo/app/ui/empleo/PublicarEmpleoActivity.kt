@@ -20,6 +20,11 @@ class PublicarEmpleoActivity : AppCompatActivity() {
     private val empleoViewModel: EmpleoViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
 
+    /**
+     * Inicializa la actividad de publicar empleo y configura los componentes principales.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPublicarEmpleoBinding.inflate(layoutInflater)
@@ -34,6 +39,9 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         cargarDatosUsuario()
     }
 
+    /**
+     * Carga los datos del usuario desde el almacenamiento local.
+     */
     private fun cargarDatosUsuario() {
         lifecycleScope.launch {
             val celular = tokenManager.getCelular().first()
@@ -43,6 +51,9 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura los observadores para los LiveData del ViewModel.
+     */
     private fun setupObservers() {
         empleoViewModel.publicarResult.observe(this) { result ->
             result.onSuccess { empleo ->
@@ -64,6 +75,9 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura los listeners de clic para los botones.
+     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -76,6 +90,11 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Valida todos los campos del formulario de publicación de empleo.
+     *
+     * @return true si todos los campos son válidos, false en caso contrario.
+     */
     private fun validarFormulario(): Boolean {
         val nombreEmpleo = binding.etNombreEmpleo.text.toString().trim()
         val descripcion = binding.etDescripcion.text.toString().trim()
@@ -99,6 +118,9 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         return true
     }
 
+    /**
+     * Publica un nuevo empleo en el sistema con los datos del formulario.
+     */
     private fun publicarEmpleo() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
@@ -127,6 +149,9 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Muestra un diálogo de éxito después de publicar el empleo.
+     */
     private fun mostrarDialogoExito() {
         val dialog = AlertDialog.Builder(this)
             .setTitle("¡Operación exitosa!")

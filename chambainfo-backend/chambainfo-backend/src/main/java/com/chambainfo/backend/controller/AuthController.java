@@ -24,6 +24,12 @@ public class AuthController {
     private final AuthService authService;
     private final ReniecService reniecService;
 
+    /**
+     * Verifica un DNI consultando la base de datos de RENIEC.
+     *
+     * @param dni El número de DNI a verificar (8 dígitos).
+     * @return Una respuesta con los datos del DNI obtenidos de RENIEC o un error si no se encuentra.
+     */
     @GetMapping("/verificar-dni/{dni}")
     public ResponseEntity<ReniecResponseDTO> verificarDni(@PathVariable String dni) {
         log.info("Solicitud de verificación de DNI: {}", dni);
@@ -42,6 +48,12 @@ public class AuthController {
         }
     }
     
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param request Los datos de registro del usuario.
+     * @return Una respuesta con los datos de autenticación del usuario registrado.
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         log.info("Solicitud de registro recibida para usuario: {}", request.getUsuario());
@@ -49,6 +61,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
+    /**
+     * Inicia sesión con las credenciales del usuario.
+     *
+     * @param request Los datos de login (usuario y contraseña).
+     * @return Una respuesta con los datos de autenticación del usuario.
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         log.info("Solicitud de login recibida para usuario: {}", request.getUsuario());
@@ -56,6 +74,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
     
+    /**
+     * Endpoint de prueba para verificar que la API está funcionando correctamente.
+     *
+     * @return Una respuesta con un mensaje de confirmación.
+     */
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("API funcionando correctamente ✅");

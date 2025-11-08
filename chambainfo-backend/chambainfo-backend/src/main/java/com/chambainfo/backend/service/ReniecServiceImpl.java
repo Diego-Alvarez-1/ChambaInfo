@@ -24,6 +24,13 @@ public class ReniecServiceImpl implements ReniecService {
         this.restTemplate = new RestTemplate();
     }
     
+    /**
+     * Consulta un DNI en la base de datos de RENIEC mediante una API externa.
+     *
+     * @param dni El número de DNI a consultar (8 dígitos).
+     * @return Los datos del DNI obtenidos de RENIEC.
+     * @throws ReniecException Si no se puede obtener información del DNI o hay un error en la conexión.
+     */
     @Override
     public ReniecResponseDTO consultarDni(String dni) {
         try {

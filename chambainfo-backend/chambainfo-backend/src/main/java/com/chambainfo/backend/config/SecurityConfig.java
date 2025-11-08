@@ -21,6 +21,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Configura la cadena de filtros de seguridad de Spring Security.
+     * Define las rutas públicas, las rutas protegidas y el filtro JWT.
+     *
+     * @param http El objeto HttpSecurity para configurar la seguridad.
+     * @return La cadena de filtros de seguridad configurada.
+     * @throws Exception Si ocurre un error en la configuración.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -32,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/empleos").permitAll()
                         .requestMatchers("/empleos/{id}").permitAll()
                         .requestMatchers("/empleos/empleador/**").permitAll()
+                        .requestMatchers("/postulaciones/**").authenticated()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -40,6 +49,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configura el codificador de contraseñas BCrypt.
+     *
+     * @return Una instancia de BCryptPasswordEncoder.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

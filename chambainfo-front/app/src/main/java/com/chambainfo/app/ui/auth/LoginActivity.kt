@@ -20,6 +20,11 @@ class LoginActivity : AppCompatActivity() {
     private val authViewModel: AuthViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
 
+    /**
+     * Inicializa la actividad de login y configura los componentes principales.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -31,6 +36,9 @@ class LoginActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+    /**
+     * Configura los observadores para los LiveData del ViewModel.
+     */
     private fun setupObservers() {
         authViewModel.loginResult.observe(this) { result ->
             result.onSuccess { authResponse ->
@@ -74,6 +82,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura los listeners de clic para los botones y enlaces.
+     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -107,6 +118,13 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Valida los campos de entrada del formulario de login.
+     *
+     * @param usuario El nombre de usuario ingresado.
+     * @param password La contraseña ingresada.
+     * @return true si los campos son válidos, false en caso contrario.
+     */
     private fun validateInputs(usuario: String, password: String): Boolean {
         if (usuario.isEmpty()) {
             binding.etUsuario.error = "El usuario es obligatorio"

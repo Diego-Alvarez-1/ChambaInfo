@@ -27,6 +27,11 @@ class AuthViewModel : ViewModel() {
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param request Los datos de registro del usuario.
+     */
     fun register(request: RegisterRequest) {
         viewModelScope.launch {
             try {
@@ -47,6 +52,11 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Inicia sesión con las credenciales del usuario.
+     *
+     * @param request Los datos de login (usuario y contraseña).
+     */
     fun login(request: LoginRequest) {
         viewModelScope.launch {
             try {
@@ -67,6 +77,11 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Verifica un DNI consultando la base de datos de RENIEC.
+     *
+     * @param dni El número de DNI a verificar (8 dígitos).
+     */
     fun verificarDni(dni: String) {
         viewModelScope.launch {
             try {

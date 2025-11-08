@@ -20,10 +20,21 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
     
+    /**
+     * Obtiene la clave secreta para firmar los tokens JWT.
+     *
+     * @return La clave secreta generada a partir del jwtSecret.
+     */
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
     
+    /**
+     * Genera un token JWT para un usuario específico.
+     *
+     * @param usuario El nombre de usuario para el cual se genera el token.
+     * @return El token JWT generado.
+     */
     public String generateToken(String usuario) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -36,6 +47,12 @@ public class JwtTokenProvider {
                 .compact();
     }
     
+    /**
+     * Extrae el nombre de usuario desde un token JWT.
+     *
+     * @param token El token JWT del cual extraer el nombre de usuario.
+     * @return El nombre de usuario extraído del token.
+     */
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -46,6 +63,12 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
     
+    /**
+     * Valida si un token JWT es válido y no ha expirado.
+     *
+     * @param token El token JWT a validar.
+     * @return true si el token es válido, false en caso contrario.
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

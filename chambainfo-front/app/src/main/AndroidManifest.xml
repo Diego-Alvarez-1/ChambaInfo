@@ -39,6 +39,9 @@
             android:name=".ui.empleo.PublicarEmpleoActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.empleo.DetalleEmpleoActivity" />
+        <activity
+            android:name=".ui.empleo.PostularEmpleoActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.profile.PerfilActivity" />
 
     </application>

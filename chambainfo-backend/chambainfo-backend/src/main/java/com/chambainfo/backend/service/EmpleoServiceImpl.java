@@ -21,6 +21,14 @@ public class EmpleoServiceImpl implements EmpleoService {
     private final EmpleoRepository empleoRepository;
     private final UsuarioRepository usuarioRepository;
 
+    /**
+     * Publica un nuevo empleo en el sistema.
+     *
+     * @param request Los datos del empleo a publicar.
+     * @param usuarioAutenticado El nombre de usuario del empleador autenticado.
+     * @return Los datos del empleo publicado.
+     * @throws RuntimeException Si el usuario no se encuentra.
+     */
     @Override
     @Transactional
     public EmpleoResponseDTO publicarEmpleo(PublicarEmpleoRequestDTO request, String usuarioAutenticado) {
@@ -50,6 +58,11 @@ public class EmpleoServiceImpl implements EmpleoService {
         return convertirADTO(empleoGuardado);
     }
 
+    /**
+     * Obtiene todos los empleos activos disponibles en el sistema.
+     *
+     * @return Una lista con todos los empleos activos ordenados por fecha de publicación descendente.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<EmpleoResponseDTO> obtenerTodosLosEmpleos() {
@@ -64,6 +77,12 @@ public class EmpleoServiceImpl implements EmpleoService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene todos los empleos publicados por un empleador específico.
+     *
+     * @param empleadorId El ID del empleador.
+     * @return Una lista con los empleos del empleador ordenados por fecha de publicación descendente.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<EmpleoResponseDTO> obtenerEmpleosPorEmpleador(Long empleadorId) {
@@ -76,6 +95,13 @@ public class EmpleoServiceImpl implements EmpleoService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene los detalles de un empleo específico por su ID.
+     *
+     * @param id El ID del empleo a obtener.
+     * @return Los detalles del empleo.
+     * @throws RuntimeException Si el empleo no se encuentra.
+     */
     @Override
     @Transactional(readOnly = true)
     public EmpleoResponseDTO obtenerEmpleoPorId(Long id) {
@@ -87,6 +113,13 @@ public class EmpleoServiceImpl implements EmpleoService {
         return convertirADTO(empleo);
     }
 
+    /**
+     * Desactiva un empleo publicado (solo el empleador puede desactivar sus propios empleos).
+     *
+     * @param id El ID del empleo a desactivar.
+     * @param usuarioAutenticado El nombre de usuario del empleador autenticado.
+     * @throws RuntimeException Si el empleo no se encuentra o el usuario no tiene permisos.
+     */
     @Override
     @Transactional
     public void desactivarEmpleo(Long id, String usuarioAutenticado) {
@@ -106,7 +139,12 @@ public class EmpleoServiceImpl implements EmpleoService {
         log.info("Empleo desactivado exitosamente");
     }
 
-    // Método auxiliar para convertir Entidad a DTO
+    /**
+     * Convierte una entidad Empleo a su DTO correspondiente.
+     *
+     * @param empleo La entidad Empleo a convertir.
+     * @return El DTO con los datos del empleo.
+     */
     private EmpleoResponseDTO convertirADTO(Empleo empleo) {
         return EmpleoResponseDTO.builder()
                 .id(empleo.getId())

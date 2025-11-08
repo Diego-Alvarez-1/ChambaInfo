@@ -211,6 +211,16 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/btnPostular"
+                style="@style/Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="POSTULAR"
+                android:visibility="gone" />
+
+
             <!-- Botón Crear Cuenta (si no está logueado) -->
             <Button
                 android:id="@+id/btnCrearCuenta"

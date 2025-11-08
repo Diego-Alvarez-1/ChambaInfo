@@ -1,4 +1,6 @@
 package com.chambainfo.app.data.model
 
-class PostulacionRequest {
-}
+data class PostulacionRequest(
+    val empleoId: Long,
+    val mensaje: String
+)

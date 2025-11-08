@@ -34,6 +34,11 @@ class RegisterActivity : AppCompatActivity() {
     private var apellidoMaternoReniec = ""
     private var nombreCompletoReniec = ""
 
+    /**
+     * Inicializa la actividad de registro y configura los componentes principales.
+     *
+     * @param savedInstanceState El estado guardado de la actividad, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
@@ -46,6 +51,9 @@ class RegisterActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
+    /**
+     * Configura el texto de términos y condiciones con un enlace clickeable.
+     */
     private fun setupTerminosText() {
         val textoCompleto = "Al registrarte aceptas los Términos y Condiciones"
         val spannable = SpannableString(textoCompleto)
@@ -69,6 +77,9 @@ class RegisterActivity : AppCompatActivity() {
         binding.tvTerminos.movementMethod = LinkMovementMethod.getInstance()
     }
 
+    /**
+     * Configura los observadores para los LiveData del ViewModel.
+     */
     private fun setupObservers() {
         // Observer para verificación de DNI
         authViewModel.verificarDniResult.observe(this) { result ->
@@ -152,6 +163,9 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Configura los listeners de clic para los botones.
+     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -176,6 +190,11 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Valida todos los campos del formulario de registro.
+     *
+     * @return true si todos los campos son válidos, false en caso contrario.
+     */
     private fun validarFormulario(): Boolean {
         val dni = binding.etDni.text.toString().trim()
         val celular = binding.etCelular.text.toString().trim()
@@ -205,6 +224,9 @@ class RegisterActivity : AppCompatActivity() {
         return true
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema con los datos del formulario.
+     */
     private fun registrarUsuario() {
         val dni = binding.etDni.text.toString().trim()
         val celular = binding.etCelular.text.toString().trim()
@@ -226,6 +248,11 @@ class RegisterActivity : AppCompatActivity() {
         authViewModel.register(registerRequest)
     }
 
+    /**
+     * Muestra un diálogo de error con un mensaje específico.
+     *
+     * @param mensaje El mensaje de error a mostrar.
+     */
     private fun mostrarDialogoError(mensaje: String) {
         AlertDialog.Builder(this)
             .setTitle("Error de validación")
@@ -236,6 +263,9 @@ class RegisterActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Muestra un diálogo de éxito después de registrar al usuario.
+     */
     private fun mostrarDialogoExito() {
         val dialog = AlertDialog.Builder(this)
             .setTitle("¡Operación exitosa!")
