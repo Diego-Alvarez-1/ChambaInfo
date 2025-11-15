@@ -56,6 +56,14 @@
             android:name=".ui.empleador.PostulacionesEmpleoActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".ui.empleador.PerfilTrabajadorActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.trabajador.MisPostulacionesActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

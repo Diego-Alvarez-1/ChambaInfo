@@ -50,13 +50,24 @@ class EmpleoViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _loading.value = true
+                _error.value = null // Limpiar errores anteriores
+
+                println("DEBUG: EmpleoViewModel - Cargando empleo ID: $id")
+
                 val response = repository.obtenerEmpleoPorId(id)
+
+                println("DEBUG: EmpleoViewModel - Respuesta recibida. Código: ${response.code()}")
+
                 if (response.isSuccessful && response.body() != null) {
-                    _empleoDetalle.value = response.body()
+                    val empleo = response.body()!!
+                    println("DEBUG: EmpleoViewModel - Empleo obtenido: ID=${empleo.id}, MostrarNumero=${empleo.mostrarNumero}, Celular='${empleo.celularContacto}'")
+                    _empleoDetalle.value = empleo
                 } else {
+                    println("ERROR: EmpleoViewModel - Empleo no encontrado. Código: ${response.code()}")
                     _error.value = "Empleo no encontrado"
                 }
             } catch (e: Exception) {
+                println("ERROR: EmpleoViewModel - Excepción: ${e.message}")
                 _error.value = e.message ?: "Error de conexión"
             } finally {
                 _loading.value = false
@@ -64,7 +75,35 @@ class EmpleoViewModel : ViewModel() {
         }
     }
 
-    // NUEVO: Método para cargar empleos por empleador
+    // NUEVO: Método para limpiar datos anteriores
+    fun limpiarEmpleoDetalle() {
+        println("DEBUG: EmpleoViewModel - Limpiando empleoDetalle")
+        _empleoDetalle.value = null
+        _error.value = null
+    }
+
+    // NUEVO: Método para cargar empleo directamente (alternativa)
+    suspend fun cargarEmpleoDirecto(id: Long): Empleo? {
+        return try {
+            println("DEBUG: EmpleoViewModel - Carga directa empleo ID: $id")
+
+            val response = repository.obtenerEmpleoPorId(id)
+
+            if (response.isSuccessful && response.body() != null) {
+                val empleo = response.body()!!
+                println("DEBUG: EmpleoViewModel - Carga directa exitosa: ID=${empleo.id}, MostrarNumero=${empleo.mostrarNumero}, Celular='${empleo.celularContacto}'")
+                empleo
+            } else {
+                println("ERROR: EmpleoViewModel - Carga directa fallida. Código: ${response.code()}")
+                null
+            }
+        } catch (e: Exception) {
+            println("ERROR: EmpleoViewModel - Excepción en carga directa: ${e.message}")
+            null
+        }
+    }
+
+    // Método para cargar empleos por empleador
     fun cargarEmpleosPorEmpleador(empleadorId: Long) {
         viewModelScope.launch {
             try {

@@ -214,4 +214,11 @@ interface ApiService {
         @Path("tipoDocumento") tipoDocumento: String
     ): Response<Map<String, String>>
 
+    @PUT("postulaciones/{id}/estado")
+    suspend fun actualizarEstadoPostulacion(
+        @Header("Authorization") token: String,
+        @Path("id") id: Long,
+        @Body body: Map<String, String>
+    ): Response<PostulacionResponse>
+
 }

@@ -19,7 +19,6 @@ import com.chambainfo.app.databinding.ActivityMainBinding
 import com.chambainfo.app.ui.auth.LoginActivity
 import com.chambainfo.app.ui.empleo.DetalleEmpleoActivity
 import com.chambainfo.app.ui.empleo.EmpleoAdapter
-import com.chambainfo.app.ui.empleo.PublicarEmpleoActivity
 import com.chambainfo.app.ui.empleador.EmpleadorDashboardActivity
 import com.chambainfo.app.ui.profile.PerfilActivity
 import com.chambainfo.app.viewmodel.EmpleoViewModel
@@ -34,15 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     private var todosLosEmpleos = listOf<Empleo>()
 
-    /**
-     * Inicializa la actividad y configura los componentes principales.
-     *
-     * @param savedInstanceState El estado guardado de la actividad, si existe.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Configurar edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -50,7 +43,6 @@ class MainActivity : AppCompatActivity() {
 
         tokenManager = TokenManager(this)
 
-        // NUEVO: Verificar si el usuario es empleador y redirigir
         verificarRolYRedirigir()
 
         setupRecyclerViews()
@@ -59,32 +51,39 @@ class MainActivity : AppCompatActivity() {
         setupBuscador()
         verificarSesion()
 
-        // Cargar empleos
         empleoViewModel.cargarEmpleos()
     }
 
-    /**
-     * Verifica si el usuario tiene una sesión activa y muestra u oculta el botón de perfil.
-     */
     private fun verificarSesion() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
             if (token != null) {
-                // Usuario logueado, mostrar botón de perfil
                 binding.btnPerfil.visibility = View.VISIBLE
+                binding.layoutNotificacionesTrabajador.root.visibility = View.VISIBLE
+                binding.btnMisPostulaciones.visibility = View.VISIBLE // AGREGAR ESTA LÍNEA
+                cargarNotificaciones()
             } else {
-                // Usuario no logueado, ocultar botón de perfil
                 binding.btnPerfil.visibility = View.GONE
+                binding.layoutNotificacionesTrabajador.root.visibility = View.GONE
+                binding.btnMisPostulaciones.visibility = View.GONE // AGREGAR ESTA LÍNEA
             }
         }
     }
 
-    // NUEVO: Método para verificar el rol
+    private fun cargarNotificaciones() {
+        lifecycleScope.launch {
+            val token = tokenManager.getToken().first()
+            if (token != null) {
+                // Por ahora ocultar el badge hasta implementar sistema completo de notificaciones
+                binding.layoutNotificacionesTrabajador.tvBadgeCount.visibility = View.GONE
+            }
+        }
+    }
+
     private fun verificarRolYRedirigir() {
         lifecycleScope.launch {
             val rol = tokenManager.getRol().first()
             if (rol == "EMPLEADOR") {
-                // Si es empleador, redirigir al dashboard de empleador
                 val intent = Intent(this@MainActivity, EmpleadorDashboardActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
@@ -93,9 +92,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Configura los RecyclerViews para mostrar empleos por categoría.
-     */
     private fun setupRecyclerViews() {
         binding.rvEmpleosAtencion.layoutManager = LinearLayoutManager(
             this, LinearLayoutManager.HORIZONTAL, false
@@ -117,9 +113,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Configura los observadores para los LiveData del ViewModel.
-     */
     private fun setupObservers() {
         empleoViewModel.empleos.observe(this) { empleos ->
             todosLosEmpleos = empleos
@@ -135,11 +128,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Organiza y muestra los empleos agrupados por categorías.
-     *
-     * @param empleos La lista de empleos a categorizar y mostrar.
-     */
     private fun mostrarEmpleosPorCategoria(empleos: List<Empleo>) {
         val atencion = empleos.filter { empleo ->
             val nombre = empleo.nombreEmpleo.lowercase()
@@ -249,14 +237,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Configura la visualización de una categoría de empleos en el RecyclerView.
-     *
-     * @param recyclerView El RecyclerView donde se mostrarán los empleos.
-     * @param textView El TextView que muestra el nombre de la categoría.
-     * @param empleos La lista de empleos de esta categoría.
-     * @param nombreCategoria El nombre de la categoría a mostrar.
-     */
     private fun configurarCategoria(
         recyclerView: androidx.recyclerview.widget.RecyclerView,
         textView: android.widget.TextView,
@@ -276,9 +256,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Configura el buscador de empleos con un TextWatcher.
-     */
     private fun setupBuscador() {
         binding.etBuscar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -292,11 +269,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Filtra los empleos según el texto de búsqueda ingresado.
-     *
-     * @param query El texto de búsqueda ingresado por el usuario.
-     */
     private fun filtrarEmpleos(query: String) {
         if (query.isEmpty()) {
             mostrarEmpleosPorCategoria(todosLosEmpleos)
@@ -327,11 +299,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Muestra los resultados de búsqueda en el RecyclerView.
-     *
-     * @param empleos La lista de empleos filtrados que coinciden con la búsqueda.
-     */
     private fun mostrarResultadosBusqueda(empleos: List<Empleo>) {
         ocultarTodasLasCategorias()
 
@@ -343,9 +310,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Oculta todas las categorías de empleos en la interfaz.
-     */
     private fun ocultarTodasLasCategorias() {
         binding.tvCategoriaAtencion.visibility = View.GONE
         binding.rvEmpleosAtencion.visibility = View.GONE
@@ -366,42 +330,21 @@ class MainActivity : AppCompatActivity() {
         binding.rvEmpleosOtros.visibility = View.GONE
     }
 
-    /**
-     * Configura los listeners de clic para los botones principales.
-     */
     private fun setupClickListeners() {
-        // Botón de perfil
         binding.btnPerfil.setOnClickListener {
             mostrarMenuPerfil()
         }
-        binding.btnPublicarEmpleo.setOnClickListener {
-            lifecycleScope.launch {
-                tokenManager.getToken().collect { token ->
-                    if (token != null) {
-                        startActivity(Intent(this@MainActivity, PublicarEmpleoActivity::class.java))
-                    } else {
-                        startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                    }
-                }
-            }
+
+        binding.layoutNotificacionesTrabajador.btnNotificaciones.setOnClickListener {
+            Toast.makeText(this, "Notificaciones próximamente", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnComenzarAhora.setOnClickListener {
-            lifecycleScope.launch {
-                tokenManager.getToken().collect { token ->
-                    if (token != null) {
-                        startActivity(Intent(this@MainActivity, PublicarEmpleoActivity::class.java))
-                    } else {
-                        startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                    }
-                }
-            }
+        binding.btnMisPostulaciones.setOnClickListener {
+            val intent = Intent(this, com.chambainfo.app.ui.trabajador.MisPostulacionesActivity::class.java)
+            startActivity(intent)
         }
     }
 
-    /**
-     * Muestra un menú de diálogo con opciones del perfil del usuario.
-     */
     private fun mostrarMenuPerfil() {
         val opciones = arrayOf("Ver mi perfil", "Cerrar sesión")
 
@@ -410,11 +353,9 @@ class MainActivity : AppCompatActivity() {
             .setItems(opciones) { dialog, which ->
                 when (which) {
                     0 -> {
-                        // Ver perfil
                         startActivity(Intent(this, PerfilActivity::class.java))
                     }
                     1 -> {
-                        // Cerrar sesión
                         mostrarDialogoCerrarSesion()
                     }
                 }
@@ -422,9 +363,6 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    /**
-     * Muestra un diálogo de confirmación para cerrar sesión.
-     */
     private fun mostrarDialogoCerrarSesion() {
         AlertDialog.Builder(this)
             .setTitle("Cerrar sesión")
@@ -436,9 +374,6 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    /**
-     * Cierra la sesión del usuario, limpia los datos guardados y redirige al login.
-     */
     private fun cerrarSesion() {
         lifecycleScope.launch {
             tokenManager.clearAllData()
@@ -449,10 +384,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
 
-            // Ocultar botón de perfil
             binding.btnPerfil.visibility = View.GONE
+            binding.layoutNotificacionesTrabajador.root.visibility = View.GONE
+            binding.btnMisPostulaciones.visibility = View.GONE // AGREGAR ESTA LÍNEA
 
-            // Opcional: Ir a LoginActivity
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -460,26 +395,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Abre la actividad de detalle de un empleo específico.
-     *
-     * @param empleoId El ID del empleo del cual se mostrará el detalle.
-     */
     private fun abrirDetalleEmpleo(empleoId: Long) {
         val intent = Intent(this, DetalleEmpleoActivity::class.java)
         intent.putExtra("EMPLEO_ID", empleoId)
         startActivity(intent)
     }
 
-    /**
-     * Se ejecuta cuando la actividad vuelve al primer plano.
-     * Recarga los empleos y verifica la sesión del usuario.
-     */
     override fun onResume() {
         super.onResume()
-        // Recargar empleos cuando se vuelve a la actividad
         empleoViewModel.cargarEmpleos()
-        // Verificar sesión
         verificarSesion()
     }
 }
