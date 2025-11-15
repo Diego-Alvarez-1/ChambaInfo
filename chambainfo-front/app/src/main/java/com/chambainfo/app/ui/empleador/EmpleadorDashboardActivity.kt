@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -21,13 +22,17 @@ import com.chambainfo.app.ui.empleo.DetalleEmpleoActivity
 import com.chambainfo.app.ui.empleo.PublicarEmpleoActivity
 import com.chambainfo.app.ui.profile.PerfilActivity
 import com.chambainfo.app.viewmodel.EmpleoViewModel
+import com.chambainfo.app.viewmodel.PostulacionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EmpleadorDashboardActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEmpleadorDashboardBinding
     private val empleoViewModel: EmpleoViewModel by viewModels()
+    private val postulacionViewModel: PostulacionViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
     private lateinit var adapter: MisEmpleosAdapter
 
@@ -45,6 +50,7 @@ class EmpleadorDashboardActivity : AppCompatActivity() {
         setupObservers()
         setupClickListeners()
         cargarMisEmpleos()
+        cargarEstadisticas()
     }
 
     private fun setupRecyclerView() {
@@ -87,8 +93,7 @@ class EmpleadorDashboardActivity : AppCompatActivity() {
             mostrarMenuPerfil()
         }
 
-        binding.btnNotificaciones.setOnClickListener {
-            // TODO: Implementar notificaciones
+        binding.layoutNotificaciones.btnNotificaciones.setOnClickListener {
             Toast.makeText(this, "Notificaciones próximamente", Toast.LENGTH_SHORT).show()
         }
 
@@ -121,6 +126,71 @@ class EmpleadorDashboardActivity : AppCompatActivity() {
         }
     }
 
+    private fun cargarEstadisticas() {
+        lifecycleScope.launch {
+            val token = tokenManager.getToken().first()
+            val userId = tokenManager.getUserId().first()
+
+            if (token != null && userId != null) {
+                empleoViewModel.cargarEmpleosPorEmpleador(userId)
+
+                empleoViewModel.empleos.observe(this@EmpleadorDashboardActivity) { empleos ->
+                    val empleosActivos = empleos.filter { it.activo }
+                    binding.tvTotalEmpleos.text = empleosActivos.size.toString()
+
+                    // Cargar todas las postulaciones
+                    var todasLasPostulaciones = mutableListOf<com.chambainfo.app.data.model.PostulacionResponse>()
+
+                    empleosActivos.forEach { empleo ->
+                        lifecycleScope.launch {
+                            try {
+                                val response = com.chambainfo.app.data.api.RetrofitClient.apiService
+                                    .obtenerPostulacionesPorEmpleo("Bearer $token", empleo.id)
+
+                                if (response.isSuccessful && response.body() != null) {
+                                    // Filtrar solo postulaciones NO archivadas (estado diferente de ARCHIVADO)
+                                    val postulacionesActivas = response.body()!!.filter {
+                                        it.estado != "ARCHIVADO"
+                                    }
+                                    todasLasPostulaciones.addAll(postulacionesActivas)
+
+                                    // Actualizar contadores
+                                    binding.tvTotalPostulaciones.text = todasLasPostulaciones.size.toString()
+
+                                    // Calcular nuevas (últimas 24 horas)
+                                    val ahora = System.currentTimeMillis()
+                                    val hace24Horas = ahora - (24 * 60 * 60 * 1000)
+
+                                    val nuevas = todasLasPostulaciones.count { postulacion ->
+                                        try {
+                                            val formato = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                                            val fecha = formato.parse(postulacion.fechaPostulacion)
+                                            (fecha?.time ?: 0) > hace24Horas
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                    }
+
+                                    binding.tvTotalNuevas.text = nuevas.toString()
+
+                                    // Actualizar badge
+                                    val badgeCount = binding.layoutNotificaciones.tvBadgeCount
+                                    if (nuevas > 0) {
+                                        badgeCount.visibility = View.VISIBLE
+                                        badgeCount.text = if (nuevas > 99) "99+" else nuevas.toString()
+                                    } else {
+                                        badgeCount.visibility = View.GONE
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("EmpleadorDashboard", "Error cargando postulaciones: ${e.message}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     private fun abrirDetalleEmpleo(empleoId: Long) {
         val intent = Intent(this, DetalleEmpleoActivity::class.java)
         intent.putExtra("EMPLEO_ID", empleoId)
@@ -182,5 +252,6 @@ class EmpleadorDashboardActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         cargarMisEmpleos()
+        cargarEstadisticas()
     }
 }

@@ -1,12 +1,15 @@
 package com.chambainfo.app.ui.empleo
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.chambainfo.app.R
 import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.databinding.ActivityDetalleEmpleoBinding
 import com.chambainfo.app.ui.auth.LoginActivity
@@ -19,170 +22,269 @@ import java.util.*
 
 class DetalleEmpleoActivity : AppCompatActivity() {
 
+    // Properties
     private lateinit var binding: ActivityDetalleEmpleoBinding
+    private lateinit var tokenManager: TokenManager
+
     private val empleoViewModel: EmpleoViewModel by viewModels()
     private val postulacionViewModel: PostulacionViewModel by viewModels()
-    private lateinit var tokenManager: TokenManager
+
     private var empleoId: Long = 0
     private var nombreEmpleo: String = ""
     private var mostrarNumero: Boolean = true
 
-    /**
-     * Inicializa la actividad de detalle de empleo y carga los datos.
-     *
-     * @param savedInstanceState El estado guardado de la actividad, si existe.
-     */
+    // Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetalleEmpleoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        tokenManager = TokenManager(this)
-        empleoId = intent.getLongExtra("EMPLEO_ID", 0)
-
+        initializeComponents()
         setupObservers()
         setupClickListeners()
-
-        if (empleoId > 0) {
-            empleoViewModel.cargarEmpleoPorId(empleoId)
-        }
-
+        loadEmpleoData()
         verificarSesion()
     }
 
-    /**
-     * Verifica si el usuario tiene una sesión activa y configura la interfaz en consecuencia.
-     */
+    override fun onResume() {
+        super.onResume()
+        verificarPostulacionExistente()
+    }
+
+    // Initialization
+    private fun initializeComponents() {
+        tokenManager = TokenManager(this)
+        empleoId = intent.getLongExtra("EMPLEO_ID", 0)
+    }
+
+    private fun loadEmpleoData() {
+        if (empleoId > 0) {
+            empleoViewModel.cargarEmpleoPorId(empleoId)
+        }
+    }
+
+    // Session Management
     private fun verificarSesion() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
 
             if (token == null) {
-                binding.cardAlertaRegistro.visibility = View.VISIBLE
-                binding.btnCrearCuenta.visibility = View.VISIBLE
-                binding.tvInfoContacto.visibility = View.GONE
-                binding.layoutBotonesContacto.visibility = View.GONE
-                binding.btnPostular.visibility = View.GONE
+                mostrarVistaNoAutenticado()
             } else {
-                binding.cardAlertaRegistro.visibility = View.GONE
-                binding.btnCrearCuenta.visibility = View.GONE
-
+                ocultarVistaNoAutenticado()
                 postulacionViewModel.verificarYaPostulo(token, empleoId)
             }
         }
     }
 
-    /**
-     * Configura los observadores para los LiveData de los ViewModels.
-     */
+    private fun verificarPostulacionExistente() {
+        lifecycleScope.launch {
+            val token = tokenManager.getToken().first()
+            if (token != null && empleoId > 0) {
+                postulacionViewModel.verificarYaPostulo(token, empleoId)
+            }
+        }
+    }
+
+    // UI Setup
     private fun setupObservers() {
+        observeEmpleoDetalle()
+        observePostulacionStatus()
+        observeLoadingState()
+        observeErrors()
+    }
+
+    private fun observeEmpleoDetalle() {
         empleoViewModel.empleoDetalle.observe(this) { empleo ->
             nombreEmpleo = empleo.nombreEmpleo
             mostrarNumero = empleo.mostrarNumero
 
-            binding.tvPuesto.text = empleo.nombreEmpleo
-            binding.tvEmpleador.text = "${empleo.empleadorNombre} · ${calcularTiempoTranscurrido(empleo.fechaPublicacion)}"
-            binding.tvDescripcion.text = empleo.descripcionEmpleo
+            actualizarDatosEmpleo(empleo)
+            actualizarInfoAdicional(empleo)
+            verificarPropietarioEmpleo(empleo)
+        }
+    }
 
-            binding.tvCelular.text = if (empleo.mostrarNumero) {
+    private fun actualizarDatosEmpleo(empleo: com.chambainfo.app.data.model.Empleo) {
+        with(binding) {
+            tvPuesto.text = empleo.nombreEmpleo
+            tvEmpleador.text = "${empleo.empleadorNombre} · ${calcularTiempoTranscurrido(empleo.fechaPublicacion)}"
+            tvDescripcion.text = empleo.descripcionEmpleo
+
+            tvCelular.text = if (empleo.mostrarNumero) {
                 "+51 ${empleo.celularContacto}"
             } else {
                 "Número oculto"
             }
+        }
+    }
 
-            val infoAdicional = buildString {
-                empleo.ubicacion?.let {
-                    append("• Ubicación: $it\n")
-                }
-                empleo.salario?.let {
-                    append("• Salario: $it\n")
-                }
-            }
-
-            if (infoAdicional.isNotEmpty()) {
-                binding.tvInfoAdicional.text = infoAdicional.trim()
-                binding.tvInfoAdicionalLabel.visibility = View.VISIBLE
-                binding.tvInfoAdicional.visibility = View.VISIBLE
-            } else {
-                binding.tvInfoAdicionalLabel.visibility = View.GONE
-                binding.tvInfoAdicional.visibility = View.GONE
-            }
-
-            lifecycleScope.launch {
-                val token = tokenManager.getToken().first()
-                if (token != null) {
-                    if (empleo.mostrarNumero) {
-                        binding.tvInfoContacto.visibility = View.VISIBLE
-                        binding.layoutBotonesContacto.visibility = View.VISIBLE
-                        binding.btnPostular.visibility = View.GONE
-                    } else {
-                        binding.tvInfoContacto.visibility = View.GONE
-                        binding.layoutBotonesContacto.visibility = View.GONE
-                        binding.btnPostular.visibility = View.VISIBLE
-                    }
-                }
-            }
+    private fun actualizarInfoAdicional(empleo: com.chambainfo.app.data.model.Empleo) {
+        val infoAdicional = buildString {
+            empleo.ubicacion?.let { append("• Ubicación: $it\n") }
+            empleo.salario?.let { append("• Salario: $it\n") }
         }
 
+        with(binding) {
+            if (infoAdicional.isNotEmpty()) {
+                tvInfoAdicional.text = infoAdicional.trim()
+                tvInfoAdicionalLabel.visibility = View.VISIBLE
+                tvInfoAdicional.visibility = View.VISIBLE
+            } else {
+                tvInfoAdicionalLabel.visibility = View.GONE
+                tvInfoAdicional.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun verificarPropietarioEmpleo(empleo: com.chambainfo.app.data.model.Empleo) {
+        lifecycleScope.launch {
+            val token = tokenManager.getToken().first()
+            val userId = tokenManager.getUserId().first()
+
+            when {
+                userId == empleo.empleadorId -> mostrarVistaPropietario()
+                token != null -> configurarVistaUsuarioAutenticado(empleo.mostrarNumero)
+            }
+        }
+    }
+
+    private fun observePostulacionStatus() {
         postulacionViewModel.yaPostuloResult.observe(this) { yaPostulo ->
             if (yaPostulo) {
-                binding.btnPostular.isEnabled = false
-                binding.btnPostular.text = "Ya postulaste a este empleo"
-                binding.btnPostular.alpha = 0.6f
+                deshabilitarBotonPostular()
             }
         }
+    }
 
+    private fun observeLoadingState() {
         empleoViewModel.loading.observe(this) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
+    }
 
+    private fun observeErrors() {
         empleoViewModel.error.observe(this) { errorMsg ->
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Configura los listeners de clic para los botones.
-     */
+    // Click Listeners
     private fun setupClickListeners() {
-        binding.btnBack.setOnClickListener {
-            finish()
-        }
-
-        binding.btnCrearCuenta.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
-
-        binding.btnWhatsApp.setOnClickListener {
-            Toast.makeText(this, "Funcionalidad de WhatsApp próximamente", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.btnTelegram.setOnClickListener {
-            Toast.makeText(this, "Funcionalidad de Telegram próximamente", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.btnPostular.setOnClickListener {
-            val intent = Intent(this, PostularEmpleoActivity::class.java)
-            intent.putExtra("EMPLEO_ID", empleoId)
-            intent.putExtra("NOMBRE_EMPLEO", nombreEmpleo)
-            intent.putExtra("EMPLEADOR_NOMBRE", empleoViewModel.empleoDetalle.value?.empleadorNombre ?: "")
-            startActivity(intent)
+        with(binding) {
+            btnBack.setOnClickListener { finish() }
+            btnCrearCuenta.setOnClickListener { navegarALogin() }
+            btnWhatsApp.setOnClickListener { abrirWhatsApp() }
+            btnTelegram.setOnClickListener { mostrarMensajeTelegram() }
+            btnPostular.setOnClickListener { navegarAPostulacion() }
         }
     }
 
-    /**
-     * Calcula el tiempo transcurrido desde la fecha de publicación hasta ahora.
-     *
-     * @param fechaString La fecha de publicación en formato String.
-     * @return Una cadena que representa el tiempo transcurrido (ej: "hace 2 días").
-     */
+    // UI State Management
+    private fun mostrarVistaNoAutenticado() {
+        with(binding) {
+            cardAlertaRegistro.visibility = View.VISIBLE
+            btnCrearCuenta.visibility = View.VISIBLE
+            tvInfoContacto.visibility = View.GONE
+            layoutBotonesContacto.visibility = View.GONE
+            btnPostular.visibility = View.GONE
+        }
+    }
+
+    private fun ocultarVistaNoAutenticado() {
+        with(binding) {
+            cardAlertaRegistro.visibility = View.GONE
+            btnCrearCuenta.visibility = View.GONE
+        }
+    }
+
+    private fun mostrarVistaPropietario() {
+        with(binding) {
+            btnPostular.visibility = View.GONE
+            tvInfoContacto.visibility = View.GONE
+            layoutBotonesContacto.visibility = View.GONE
+
+            cardAlertaRegistro.visibility = View.VISIBLE
+            cardAlertaRegistro.removeAllViews()
+
+            val textView = TextView(this@DetalleEmpleoActivity).apply {
+                text = "Este es tu empleo. No puedes postular a tus propias ofertas."
+                setPadding(16, 16, 16, 16)
+                setTextColor(resources.getColor(R.color.primary_blue_dark, theme))
+            }
+            cardAlertaRegistro.addView(textView)
+        }
+    }
+
+    private fun configurarVistaUsuarioAutenticado(mostrarNumero: Boolean) {
+        with(binding) {
+            if (mostrarNumero) {
+                tvInfoContacto.visibility = View.VISIBLE
+                layoutBotonesContacto.visibility = View.VISIBLE
+                btnPostular.visibility = View.GONE
+            } else {
+                tvInfoContacto.visibility = View.GONE
+                layoutBotonesContacto.visibility = View.GONE
+                btnPostular.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun deshabilitarBotonPostular() {
+        with(binding.btnPostular) {
+            isEnabled = false
+            text = "Ya postulaste a este empleo"
+            alpha = 0.6f
+        }
+    }
+
+    // Navigation
+    private fun navegarALogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+    }
+
+    private fun navegarAPostulacion() {
+        val intent = Intent(this, PostularEmpleoActivity::class.java).apply {
+            putExtra("EMPLEO_ID", empleoId)
+            putExtra("NOMBRE_EMPLEO", nombreEmpleo)
+            putExtra("EMPLEADOR_NOMBRE", empleoViewModel.empleoDetalle.value?.empleadorNombre ?: "")
+        }
+        startActivity(intent)
+    }
+
+    // External Actions
+    private fun abrirWhatsApp() {
+        val celular = empleoViewModel.empleoDetalle.value?.celularContacto
+        if (celular != null && celular != "Número oculto") {
+            abrirWhatsApp(celular)
+        } else {
+            Toast.makeText(this, "Número no disponible", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun abrirWhatsApp(celular: String) {
+        try {
+            val numeroLimpio = celular.replace(Regex("[^0-9]"), "")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://wa.me/51$numeroLimpio")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "No se pudo abrir WhatsApp", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun mostrarMensajeTelegram() {
+        Toast.makeText(this, "Funcionalidad de Telegram próximamente", Toast.LENGTH_SHORT).show()
+    }
+
+    // Utilities
     private fun calcularTiempoTranscurrido(fechaString: String): String {
         return try {
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
             val fecha = format.parse(fechaString)
             val ahora = Date()
             val diff = ahora.time - (fecha?.time ?: 0)
-
             val dias = diff / (1000 * 60 * 60 * 24)
 
             when {
@@ -194,20 +296,6 @@ class DetalleEmpleoActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             "recientemente"
-        }
-    }
-
-    /**
-     * Se ejecuta cuando la actividad vuelve al primer plano.
-     * Verifica nuevamente si el usuario ya postuló al empleo.
-     */
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch {
-            val token = tokenManager.getToken().first()
-            if (token != null && empleoId > 0) {
-                postulacionViewModel.verificarYaPostulo(token, empleoId)
-            }
         }
     }
 }

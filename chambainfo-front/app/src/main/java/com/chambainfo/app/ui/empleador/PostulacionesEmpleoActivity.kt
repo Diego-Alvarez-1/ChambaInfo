@@ -5,11 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chambainfo.app.data.local.TokenManager
+import com.chambainfo.app.data.model.PostulacionResponse
 import com.chambainfo.app.databinding.ActivityPostulacionesEmpleoBinding
 import com.chambainfo.app.viewmodel.PostulacionViewModel
 import kotlinx.coroutines.flow.first
@@ -22,6 +24,14 @@ class PostulacionesEmpleoActivity : AppCompatActivity() {
     private lateinit var tokenManager: TokenManager
     private lateinit var adapter: PostulacionesAdapter
     private var empleoId: Long = 0
+
+    private val perfilLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            cargarPostulaciones()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +53,7 @@ class PostulacionesEmpleoActivity : AppCompatActivity() {
                 abrirWhatsApp(postulacion.trabajadorCelular)
             },
             onVerPerfilClick = { postulacion ->
-                Toast.makeText(this, "Ver perfil próximamente", Toast.LENGTH_SHORT).show()
+                abrirPerfilTrabajador(postulacion)
             }
         )
 
@@ -52,14 +62,19 @@ class PostulacionesEmpleoActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        postulacionViewModel.misPostulaciones.observe(this) { postulaciones ->
-            if (postulaciones.isEmpty()) {
+        postulacionViewModel.misPostulaciones.observe(this) { todasPostulaciones ->
+            // Filtrar solo postulaciones NO archivadas
+            val postulacionesActivas = todasPostulaciones.filter {
+                it.estado != "ARCHIVADO"
+            }
+
+            if (postulacionesActivas.isEmpty()) {
                 binding.layoutEmptyState.visibility = View.VISIBLE
                 binding.rvPostulaciones.visibility = View.GONE
             } else {
                 binding.layoutEmptyState.visibility = View.GONE
                 binding.rvPostulaciones.visibility = View.VISIBLE
-                adapter.submitList(postulaciones)
+                adapter.submitList(postulacionesActivas)
             }
         }
 
@@ -71,7 +86,6 @@ class PostulacionesEmpleoActivity : AppCompatActivity() {
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -89,11 +103,22 @@ class PostulacionesEmpleoActivity : AppCompatActivity() {
 
     private fun abrirWhatsApp(celular: String) {
         try {
+            val numeroLimpio = celular.replace(Regex("[^0-9]"), "")
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://wa.me/51$celular")
+            intent.data = Uri.parse("https://wa.me/51$numeroLimpio")
             startActivity(intent)
         } catch (e: Exception) {
             Toast.makeText(this, "No se pudo abrir WhatsApp", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun abrirPerfilTrabajador(postulacion: PostulacionResponse) {
+        val intent = Intent(this, PerfilTrabajadorActivity::class.java)
+        intent.putExtra("TRABAJADOR_ID", postulacion.trabajadorId)
+        intent.putExtra("POSTULACION_ID", postulacion.id)
+        intent.putExtra("TRABAJADOR_NOMBRE", postulacion.trabajadorNombre)
+        intent.putExtra("TRABAJADOR_DNI", postulacion.trabajadorDni)
+        intent.putExtra("TRABAJADOR_CELULAR", postulacion.trabajadorCelular)
+        startActivity(intent)
     }
 }
