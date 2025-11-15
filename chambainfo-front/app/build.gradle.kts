@@ -74,7 +74,6 @@ dependencies {
 
     // CoordinatorLayout
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

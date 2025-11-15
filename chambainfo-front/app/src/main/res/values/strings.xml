@@ -139,30 +139,4 @@
     <string name="menciona_experiencia">Menciona tu experiencia relacionada con el puesto y tu disponibilidad de horario.</string>
     <string name="enviar_postulacion_para">Enviar postulación para \"%s\"</string>
     <string name="empleador_recibira_info">El empleador recibirá tu información de contacto y los documentos adjuntos.</string>
-
-    <!-- Empleador -->
-    <string name="mis_empleos">Mis Empleos</string>
-    <string name="estadisticas">Estadísticas</string>
-    <string name="empleos_activos">Empleos\nActivos</string>
-    <string name="empleos_finalizados">Empleos\nFinalizados</string>
-    <string name="total_postulaciones">Total\nPostulaciones</string>
-    <string name="nuevas_24h">Nuevas\n(24h)</string>
-    <string name="mis_publicaciones">Mis publicaciones</string>
-    <string name="no_empleos_publicados">No tienes empleos publicados</string>
-    <string name="publica_primer_empleo">Publica tu primer empleo y comienza a recibir postulaciones</string>
-    <string name="postulantes">Postulantes</string>
-    <string name="ver_postulantes">Ver postulantes</string>
-    <string name="activo">Activo</string>
-    <string name="finalizado">Finalizado</string>
-    <string name="postulaciones">postulaciones</string>
-    <string name="dias_restantes">días restantes</string>
-    <string name="nuevas">nuevas</string>
-    <string name="aun_no_postulantes">Aún no hay postulantes</string>
-    <string name="cuando_recibas_postulaciones">Cuando recibas postulaciones aparecerán aquí</string>
-    <string name="nuevo">Nuevo</string>
-    <string name="pendiente">Pendiente</string>
-    <string name="contactado">Contactado</string>
-    <string name="rechazado">Rechazado</string>
-    <string name="cambiar_estado">Cambiar estado</string>
-    <string name="whatsapp">WhatsApp</string>
 </resources>

@@ -36,16 +36,15 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/empleos").permitAll()
-                .requestMatchers("/empleos/{id}").permitAll()
-                .requestMatchers("/empleos/empleador/**").permitAll()
-                .requestMatchers("/postulaciones/**").authenticated()
-                .requestMatchers("/documentos/**").authenticated()
-                .requestMatchers("/empleador/**").authenticated()  // AGREGAR ESTA LÍNEA
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .anyRequest().authenticated()
-        )
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/empleos").permitAll()
+                        .requestMatchers("/empleos/{id}").permitAll()
+                        .requestMatchers("/empleos/empleador/**").permitAll()
+                        .requestMatchers("/postulaciones/**").authenticated()
+                        .requestMatchers("/documentos/**").authenticated()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -385,28 +385,24 @@ class MainActivity : AppCompatActivity() {
      * Muestra un menú de diálogo con opciones del perfil del usuario.
      */
     private fun mostrarMenuPerfil() {
-    val opciones = arrayOf("Ver mi perfil", "Mis empleos", "Cerrar sesión")
+        val opciones = arrayOf("Ver mi perfil", "Cerrar sesión")
 
-    AlertDialog.Builder(this)
-        .setTitle("Mi cuenta")
-        .setItems(opciones) { dialog, which ->
-            when (which) {
-                0 -> {
-                    // Ver perfil
-                    startActivity(Intent(this, PerfilActivity::class.java))
-                }
-                1 -> {
-                    // Mis empleos (Empleador)
-                    startActivity(Intent(this, com.chambainfo.app.ui.empleador.MisEmpleosActivity::class.java))
-                }
-                2 -> {
-                    // Cerrar sesión
-                    mostrarDialogoCerrarSesion()
+        AlertDialog.Builder(this)
+            .setTitle("Mi cuenta")
+            .setItems(opciones) { dialog, which ->
+                when (which) {
+                    0 -> {
+                        // Ver perfil
+                        startActivity(Intent(this, PerfilActivity::class.java))
+                    }
+                    1 -> {
+                        // Cerrar sesión
+                        mostrarDialogoCerrarSesion()
+                    }
                 }
             }
-        }
-        .show()
-}
+            .show()
+    }
 
     /**
      * Muestra un diálogo de confirmación para cerrar sesión.
