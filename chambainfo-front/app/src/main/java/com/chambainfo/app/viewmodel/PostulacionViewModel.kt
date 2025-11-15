@@ -55,6 +55,30 @@ class PostulacionViewModel : ViewModel() {
     }
 
     /**
+     * Carga todas las postulaciones de un empleo específico.
+     *
+     * @param token El token de autenticación del usuario.
+     * @param empleoId El ID del empleo.
+     */
+    fun cargarPostulacionesPorEmpleo(token: String, empleoId: Long) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                val response = repository.obtenerPostulacionesPorEmpleo(token, empleoId)
+                if (response.isSuccessful) {
+                    _misPostulaciones.value = response.body() ?: emptyList()
+                } else {
+                    _error.value = "Error al cargar postulaciones"
+                }
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Error de conexión"
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    /**
      * Verifica si el usuario ya postuló a un empleo específico.
      *
      * @param token El token de autenticación del usuario.

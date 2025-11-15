@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AuthResponseDTO {
-    
+
     private String token;
     private String type = "Bearer";
     private Long id;
@@ -18,5 +18,6 @@ public class AuthResponseDTO {
     private String nombreCompleto;
     private String usuario;
     private String celular;
+    private String rol; // NUEVO: añadir rol
     private String mensaje;
 }

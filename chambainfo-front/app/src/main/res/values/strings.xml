@@ -139,4 +139,34 @@
     <string name="menciona_experiencia">Menciona tu experiencia relacionada con el puesto y tu disponibilidad de horario.</string>
     <string name="enviar_postulacion_para">Enviar postulación para \"%s\"</string>
     <string name="empleador_recibira_info">El empleador recibirá tu información de contacto y los documentos adjuntos.</string>
+    <!-- Empleador Dashboard -->
+    <string name="mis_empleos">Mis Empleos</string>
+    <string name="empleos_activos">Empleos Activos</string>
+    <string name="no_tienes_empleos">No tienes empleos publicados</string>
+    <string name="comienza_publicando">Comienza publicando tu primera oferta de empleo</string>
+    <string name="ver_todos_empleos_disponibles">Ver todos los empleos disponibles</string>
+    <string name="editar">Editar</string>
+    <string name="ver_postulantes">Ver postulantes</string>
+    <string name="publicado_hace">Publicado hace</string>
+    <string name="activo">Activo</string>
+    <string name="inactivo">Inactivo</string>
+
+    <!-- Postulaciones -->
+    <string name="postulantes">Postulantes</string>
+    <string name="tienes_postulantes">Tienes %d postulantes para este empleo</string>
+    <string name="presiona_ver_detalles">Presiona sobre cada uno para ver sus detalles.</string>
+    <string name="aun_no_hay_postulantes">Aún no hay postulantes</string>
+    <string name="cuando_alguien_postule">Cuando alguien postule a tu empleo aparecerá aquí</string>
+    <string name="recibiras_notificacion">Recibirás una notificación por cada nueva postulación.</string>
+    <string name="responder_whatsapp">Responder por WhatsApp</string>
+    <string name="nuevo">Nuevo</string>
+    <string name="hace_min">hace %d min</string>
+    <string name="hace_hora">hace %d h</string>
+
+    <!-- Selección de rol -->
+    <string name="selecciona_tipo_cuenta">Selecciona tu tipo de cuenta</string>
+    <string name="elige_si_buscaras">Elige si buscarás trabajo o publicarás empleos</string>
+    <string name="busco_trabajo">Busco trabajo</string>
+    <string name="publicare_empleos">Publicaré empleos</string>
+
 </resources>

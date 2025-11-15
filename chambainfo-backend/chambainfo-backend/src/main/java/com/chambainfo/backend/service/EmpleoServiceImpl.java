@@ -90,6 +90,8 @@ public class EmpleoServiceImpl implements EmpleoService {
 
         List<Empleo> empleos = empleoRepository.findByEmpleadorIdOrderByFechaPublicacionDesc(empleadorId);
 
+        log.info("Se encontraron {} empleos para el empleador ID: {}", empleos.size(), empleadorId);
+
         return empleos.stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());

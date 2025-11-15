@@ -81,9 +81,11 @@ public class AuthServiceImpl implements AuthService {
         // Datos de la cuenta del usuario
         usuario.setUsuario(request.getUsuario());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        
         usuario.setCelular(request.getCelular());
+        usuario.setRol(request.getRol()); // NUEVO: guardar rol
+        
         log.info(" Celular guardado: {}", request.getCelular());
+        log.info(" Rol guardado: {}", request.getRol()); // NUEVO
         // ==========================================
         
         // Guardar el usuario en la base de datos
@@ -91,13 +93,7 @@ public class AuthServiceImpl implements AuthService {
         
         log.info(" Usuario registrado exitosamente en BD:");
         log.info("   - ID: {}", usuarioGuardado.getId());
-        log.info("   - DNI: {}", usuarioGuardado.getDni());
-        log.info("   - Nombres: {}", usuarioGuardado.getNombres());
-        log.info("   - Apellido Paterno: {}", usuarioGuardado.getApellidoPaterno());
-        log.info("   - Apellido Materno: {}", usuarioGuardado.getApellidoMaterno());
-        log.info("   - Nombre Completo: {}", usuarioGuardado.getNombreCompleto());
-        log.info("   - Usuario: {}", usuarioGuardado.getUsuario());
-        log.info("   - Celular: {}", usuarioGuardado.getCelular());
+        log.info("   - Rol: {}", usuarioGuardado.getRol()); // NUEVO
         
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuarioGuardado.getUsuario());
@@ -109,7 +105,8 @@ public class AuthServiceImpl implements AuthService {
                 .dni(usuarioGuardado.getDni())
                 .nombreCompleto(usuarioGuardado.getNombreCompleto())
                 .usuario(usuarioGuardado.getUsuario())
-                .celular(usuarioGuardado.getCelular())  
+                .celular(usuarioGuardado.getCelular())
+                .rol(usuarioGuardado.getRol()) // NUEVO
                 .mensaje("Cuenta creada exitosamente")
                 .build();
     }
@@ -177,6 +174,7 @@ public class AuthServiceImpl implements AuthService {
                 .nombreCompleto(usuario.getNombreCompleto())
                 .usuario(usuario.getUsuario())
                 .celular(usuario.getCelular())
+                .rol(usuario.getRol()) // NUEVO: añadir rol
                 .mensaje("Inicio de sesión exitoso")
                 .build();
     }

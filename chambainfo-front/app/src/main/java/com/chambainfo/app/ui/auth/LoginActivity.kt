@@ -11,6 +11,7 @@ import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.data.model.LoginRequest
 import com.chambainfo.app.databinding.ActivityLoginBinding
 import com.chambainfo.app.ui.MainActivity
+import com.chambainfo.app.ui.empleador.EmpleadorDashboardActivity
 import com.chambainfo.app.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -20,11 +21,6 @@ class LoginActivity : AppCompatActivity() {
     private val authViewModel: AuthViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
 
-    /**
-     * Inicializa la actividad de login y configura los componentes principales.
-     *
-     * @param savedInstanceState El estado guardado de la actividad, si existe.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -36,9 +32,6 @@ class LoginActivity : AppCompatActivity() {
         setupClickListeners()
     }
 
-    /**
-     * Configura los observadores para los LiveData del ViewModel.
-     */
     private fun setupObservers() {
         authViewModel.loginResult.observe(this) { result ->
             result.onSuccess { authResponse ->
@@ -50,7 +43,8 @@ class LoginActivity : AppCompatActivity() {
                         dni = authResponse.dni,
                         nombre = authResponse.nombreCompleto,
                         usuario = authResponse.usuario,
-                        celular = authResponse.celular
+                        celular = authResponse.celular,
+                        rol = authResponse.rol // NUEVO: guardar rol
                     )
 
                     Toast.makeText(
@@ -59,11 +53,8 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // Ir a MainActivity
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+                    // Redirigir según el rol
+                    redirigirSegunRol(authResponse.rol)
                 }
             }
 
@@ -82,9 +73,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Configura los listeners de clic para los botones y enlaces.
-     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -109,7 +97,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnTrabajador.setOnClickListener {
-            // Por ahora redirige al mismo registro
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
@@ -118,13 +105,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Valida los campos de entrada del formulario de login.
-     *
-     * @param usuario El nombre de usuario ingresado.
-     * @param password La contraseña ingresada.
-     * @return true si los campos son válidos, false en caso contrario.
-     */
     private fun validateInputs(usuario: String, password: String): Boolean {
         if (usuario.isEmpty()) {
             binding.etUsuario.error = "El usuario es obligatorio"
@@ -142,5 +122,17 @@ class LoginActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    private fun redirigirSegunRol(rol: String) {
+        val intent = if (rol == "EMPLEADOR") {
+            Intent(this, EmpleadorDashboardActivity::class.java)
+        } else {
+            Intent(this, MainActivity::class.java)
+        }
+
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

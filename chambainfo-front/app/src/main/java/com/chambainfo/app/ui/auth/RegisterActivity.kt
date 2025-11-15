@@ -19,7 +19,9 @@ import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.data.model.RegisterRequest
 import com.chambainfo.app.databinding.ActivityRegisterBinding
 import com.chambainfo.app.ui.MainActivity
+import com.chambainfo.app.ui.empleador.EmpleadorDashboardActivity
 import com.chambainfo.app.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
@@ -33,12 +35,8 @@ class RegisterActivity : AppCompatActivity() {
     private var apellidoPaternoReniec = ""
     private var apellidoMaternoReniec = ""
     private var nombreCompletoReniec = ""
+    private var rolSeleccionado = "TRABAJADOR" // Por defecto TRABAJADOR
 
-    /**
-     * Inicializa la actividad de registro y configura los componentes principales.
-     *
-     * @param savedInstanceState El estado guardado de la actividad, si existe.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
@@ -49,11 +47,58 @@ class RegisterActivity : AppCompatActivity() {
         setupTerminosText()
         setupObservers()
         setupClickListeners()
+        setupRolButtons()
     }
 
-    /**
-     * Configura el texto de términos y condiciones con un enlace clickeable.
-     */
+    private fun setupRolButtons() {
+        // Por defecto seleccionar TRABAJADOR
+        actualizarEstadoBotonRol(true)
+
+        binding.btnTrabajador.setOnClickListener {
+            rolSeleccionado = "TRABAJADOR"
+            actualizarEstadoBotonRol(true)
+        }
+
+        binding.btnEmpleador.setOnClickListener {
+            rolSeleccionado = "EMPLEADOR"
+            actualizarEstadoBotonRol(false)
+        }
+    }
+
+    private fun actualizarEstadoBotonRol(esTrabajador: Boolean) {
+        if (esTrabajador) {
+            // Trabajador seleccionado
+            binding.btnTrabajador.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.primary_blue)
+            )
+            binding.btnTrabajador.setTextColor(
+                ContextCompat.getColor(this, R.color.white)
+            )
+
+            binding.btnEmpleador.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.white)
+            )
+            binding.btnEmpleador.setTextColor(
+                ContextCompat.getColor(this, R.color.primary_blue)
+            )
+        } else {
+            // Empleador seleccionado
+            binding.btnEmpleador.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.primary_blue)
+            )
+            binding.btnEmpleador.setTextColor(
+                ContextCompat.getColor(this, R.color.white)
+            )
+
+            binding.btnTrabajador.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.white)
+            )
+            binding.btnTrabajador.setTextColor(
+                ContextCompat.getColor(this, R.color.primary_blue)
+            )
+        }
+    }
+
     private fun setupTerminosText() {
         val textoCompleto = "Al registrarte aceptas los Términos y Condiciones"
         val spannable = SpannableString(textoCompleto)
@@ -77,27 +122,19 @@ class RegisterActivity : AppCompatActivity() {
         binding.tvTerminos.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    /**
-     * Configura los observadores para los LiveData del ViewModel.
-     */
     private fun setupObservers() {
-        // Observer para verificación de DNI
         authViewModel.verificarDniResult.observe(this) { result ->
             result.onSuccess { reniecData ->
-                // DNI verificado exitosamente
                 dniVerificado = true
 
-                // Guardar datos de RENIEC
                 nombresReniec = reniecData.firstName
                 apellidoPaternoReniec = reniecData.firstLastName
                 apellidoMaternoReniec = reniecData.secondLastName
                 nombreCompletoReniec = reniecData.fullName
 
-                // Mostrar verificación exitosa
                 binding.tvVerificado.visibility = View.VISIBLE
                 binding.tvDatosReniec.visibility = View.VISIBLE
 
-                // Autocompletar nombres y apellidos
                 binding.etNombres.setText(nombresReniec)
                 binding.etApellidos.setText("$apellidoPaternoReniec $apellidoMaternoReniec")
 
@@ -107,7 +144,6 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             result.onFailure { error ->
-                // Error al verificar DNI
                 dniVerificado = false
                 binding.tvVerificado.visibility = View.GONE
                 binding.tvDatosReniec.visibility = View.GONE
@@ -123,7 +159,6 @@ class RegisterActivity : AppCompatActivity() {
 
         authViewModel.registerResult.observe(this) { result ->
             result.onSuccess { authResponse ->
-                // Guardar datos de sesión
                 lifecycleScope.launch {
                     tokenManager.saveAuthData(
                         token = authResponse.token,
@@ -131,10 +166,10 @@ class RegisterActivity : AppCompatActivity() {
                         dni = authResponse.dni,
                         nombre = authResponse.nombreCompleto,
                         usuario = authResponse.usuario,
-                        celular = authResponse.celular
+                        celular = authResponse.celular,
+                        rol = authResponse.rol
                     )
 
-                    // Mostrar diálogo de éxito
                     mostrarDialogoExito()
                 }
             }
@@ -163,9 +198,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Configura los listeners de clic para los botones.
-     */
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()
@@ -179,7 +211,6 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Llamar al backend para verificar con RENIEC
             authViewModel.verificarDni(dni)
         }
 
@@ -190,11 +221,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Valida todos los campos del formulario de registro.
-     *
-     * @return true si todos los campos son válidos, false en caso contrario.
-     */
     private fun validarFormulario(): Boolean {
         val dni = binding.etDni.text.toString().trim()
         val celular = binding.etCelular.text.toString().trim()
@@ -224,16 +250,12 @@ class RegisterActivity : AppCompatActivity() {
         return true
     }
 
-    /**
-     * Registra un nuevo usuario en el sistema con los datos del formulario.
-     */
     private fun registrarUsuario() {
         val dni = binding.etDni.text.toString().trim()
         val celular = binding.etCelular.text.toString().trim()
         val password = binding.etPassword.text.toString().trim()
         val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
-        // Generar usuario a partir del nombre
         val usuario = nombresReniec.lowercase().replace(" ", ".") + "." +
                 apellidoPaternoReniec.lowercase()
 
@@ -242,17 +264,13 @@ class RegisterActivity : AppCompatActivity() {
             usuario = usuario,
             password = password,
             confirmPassword = confirmPassword,
-            celular = celular
+            celular = celular,
+            rol = rolSeleccionado // NUEVO: incluir el rol
         )
 
         authViewModel.register(registerRequest)
     }
 
-    /**
-     * Muestra un diálogo de error con un mensaje específico.
-     *
-     * @param mensaje El mensaje de error a mostrar.
-     */
     private fun mostrarDialogoError(mensaje: String) {
         AlertDialog.Builder(this)
             .setTitle("Error de validación")
@@ -263,24 +281,33 @@ class RegisterActivity : AppCompatActivity() {
             .show()
     }
 
-    /**
-     * Muestra un diálogo de éxito después de registrar al usuario.
-     */
     private fun mostrarDialogoExito() {
         val dialog = AlertDialog.Builder(this)
             .setTitle("¡Operación exitosa!")
             .setMessage("Cuenta creada exitosamente\n\nBienvenido a ChambaInfo")
             .setPositiveButton("Entendido") { dialog, _ ->
                 dialog.dismiss()
-                // Ir a Términos y Condiciones
-                val intent = Intent(this, TermsActivity::class.java)
-                intent.putExtra("FROM_REGISTER", true)
-                startActivity(intent)
-                finish()
+                redirigirSegunRol()
             }
             .setCancelable(false)
             .create()
 
         dialog.show()
+    }
+
+    private fun redirigirSegunRol() {
+        lifecycleScope.launch {
+            val rol = tokenManager.getRol().first()
+
+            val intent = if (rol == "EMPLEADOR") {
+                Intent(this@RegisterActivity, EmpleadorDashboardActivity::class.java)
+            } else {
+                Intent(this@RegisterActivity, MainActivity::class.java)
+            }
+
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 }

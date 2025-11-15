@@ -46,4 +46,6 @@ public interface EmpleoService {
      * @throws RuntimeException Si el empleo no se encuentra o el usuario no tiene permisos.
      */
     void desactivarEmpleo(Long id, String usuarioAutenticado);
+
+
 }

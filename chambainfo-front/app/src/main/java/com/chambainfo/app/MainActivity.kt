@@ -20,6 +20,7 @@ import com.chambainfo.app.ui.auth.LoginActivity
 import com.chambainfo.app.ui.empleo.DetalleEmpleoActivity
 import com.chambainfo.app.ui.empleo.EmpleoAdapter
 import com.chambainfo.app.ui.empleo.PublicarEmpleoActivity
+import com.chambainfo.app.ui.empleador.EmpleadorDashboardActivity
 import com.chambainfo.app.ui.profile.PerfilActivity
 import com.chambainfo.app.viewmodel.EmpleoViewModel
 import kotlinx.coroutines.flow.first
@@ -49,6 +50,9 @@ class MainActivity : AppCompatActivity() {
 
         tokenManager = TokenManager(this)
 
+        // NUEVO: Verificar si el usuario es empleador y redirigir
+        verificarRolYRedirigir()
+
         setupRecyclerViews()
         setupObservers()
         setupClickListeners()
@@ -71,6 +75,20 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // Usuario no logueado, ocultar botón de perfil
                 binding.btnPerfil.visibility = View.GONE
+            }
+        }
+    }
+
+    // NUEVO: Método para verificar el rol
+    private fun verificarRolYRedirigir() {
+        lifecycleScope.launch {
+            val rol = tokenManager.getRol().first()
+            if (rol == "EMPLEADOR") {
+                // Si es empleador, redirigir al dashboard de empleador
+                val intent = Intent(this@MainActivity, EmpleadorDashboardActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
             }
         }
     }

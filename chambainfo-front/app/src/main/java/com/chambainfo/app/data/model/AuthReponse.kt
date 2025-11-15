@@ -8,5 +8,6 @@ data class AuthResponse(
     val nombreCompleto: String,
     val usuario: String,
     val celular: String,
+    val rol: String, // NUEVO
     val mensaje: String
 )

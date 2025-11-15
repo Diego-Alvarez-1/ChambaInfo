@@ -28,9 +28,6 @@ class EmpleoViewModel : ViewModel() {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
-    /**
-     * Carga todos los empleos disponibles desde el servidor.
-     */
     fun cargarEmpleos() {
         viewModelScope.launch {
             try {
@@ -49,11 +46,6 @@ class EmpleoViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Carga los detalles de un empleo específico por su ID.
-     *
-     * @param id El ID del empleo a cargar.
-     */
     fun cargarEmpleoPorId(id: Long) {
         viewModelScope.launch {
             try {
@@ -72,12 +64,36 @@ class EmpleoViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Publica un nuevo empleo en el sistema.
-     *
-     * @param token El token de autenticación del usuario.
-     * @param request Los datos del empleo a publicar.
-     */
+    // NUEVO: Método para cargar empleos por empleador
+    fun cargarEmpleosPorEmpleador(empleadorId: Long) {
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+                android.util.Log.d("EmpleoViewModel", "Llamando a obtenerEmpleosPorEmpleador con ID: $empleadorId")
+
+                val response = repository.obtenerEmpleosPorEmpleador(empleadorId)
+
+                android.util.Log.d("EmpleoViewModel", "Respuesta recibida. Código: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val empleos = response.body() ?: emptyList()
+                    android.util.Log.d("EmpleoViewModel", "Empleos obtenidos: ${empleos.size}")
+                    _empleos.value = empleos
+                } else {
+                    val errorMsg = "Error al cargar empleos: ${response.code()}"
+                    android.util.Log.e("EmpleoViewModel", errorMsg)
+                    _error.value = errorMsg
+                }
+            } catch (e: Exception) {
+                val errorMsg = "Error de conexión: ${e.message}"
+                android.util.Log.e("EmpleoViewModel", errorMsg, e)
+                _error.value = errorMsg
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
     fun publicarEmpleo(token: String, request: PublicarEmpleoRequest) {
         viewModelScope.launch {
             try {
