@@ -48,13 +48,6 @@
             android:name=".ui.profile.VerDocumentosActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".ui.empleador.MisEmpleosActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.empleador.PostulantesActivity"
-            android:windowSoftInputMode="adjustResize" />
-
     </application>
 
 </manifest>
