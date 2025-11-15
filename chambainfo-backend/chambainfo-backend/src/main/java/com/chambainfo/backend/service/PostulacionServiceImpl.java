@@ -120,6 +120,30 @@ public class PostulacionServiceImpl implements PostulacionService {
     }
 
     /**
+     * Actualiza el estado de una postulación.
+     *
+     * @param id El ID de la postulación.
+     * @param nuevoEstado El nuevo estado de la postulación.
+     * @return Los datos actualizados de la postulación.
+     * @throws RuntimeException Si la postulación no se encuentra.
+     */
+    @Override
+    @Transactional
+    public PostulacionResponse actualizarEstado(Long id, String nuevoEstado) {
+        log.info("Actualizando estado de postulación ID: {} a estado: {}", id, nuevoEstado);
+
+        Postulacion postulacion = postulacionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Postulación no encontrada"));
+
+        postulacion.setEstado(nuevoEstado);
+        Postulacion actualizada = postulacionRepository.save(postulacion);
+
+        log.info("Estado de postulación actualizado - ID: {}, Nuevo estado: {}", actualizada.getId(), actualizada.getEstado());
+
+        return convertirADTO(actualizada);
+    }
+
+    /**
      * Convierte una entidad Postulacion a su DTO correspondiente.
      *
      * @param postulacion La entidad Postulacion a convertir.

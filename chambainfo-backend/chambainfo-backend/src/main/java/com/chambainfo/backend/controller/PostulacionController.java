@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/postulaciones")
@@ -92,5 +93,25 @@ public class PostulacionController {
         boolean yaPostulo = postulacionService.yaPostulo(empleoId, usuarioAutenticado);
 
         return ResponseEntity.ok(yaPostulo);
+    }
+
+    /**
+     * Actualiza el estado de una postulación.
+     *
+     * @param id El ID de la postulación.
+     * @param body El cuerpo de la petición que contiene el nuevo estado.
+     * @return Una respuesta con los datos actualizados de la postulación.
+     */
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<PostulacionResponse> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        log.info("Actualizando estado de postulación ID: {}", id);
+
+        String nuevoEstado = body.get("estado");
+        PostulacionResponse response = postulacionService.actualizarEstado(id, nuevoEstado);
+
+        return ResponseEntity.ok(response);
     }
 }

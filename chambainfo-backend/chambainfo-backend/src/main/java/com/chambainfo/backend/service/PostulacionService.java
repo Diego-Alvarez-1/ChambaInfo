@@ -38,4 +38,13 @@ public interface PostulacionService {
      * @return true si ya postuló, false en caso contrario.
      */
     boolean yaPostulo(Long empleoId, String usuarioAutenticado);
+    
+    /**
+     * Actualiza el estado de una postulación.
+     *
+     * @param id El ID de la postulación.
+     * @param nuevoEstado El nuevo estado de la postulación.
+     * @return Los datos actualizados de la postulación.
+     */
+    PostulacionResponse actualizarEstado(Long id, String nuevoEstado);
 }
