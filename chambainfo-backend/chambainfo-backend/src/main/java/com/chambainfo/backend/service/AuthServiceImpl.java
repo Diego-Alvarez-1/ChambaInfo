@@ -23,6 +23,16 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * Valida las contraseñas, verifica que el usuario no exista, consulta RENIEC y genera un token JWT.
+     *
+     * @param request Los datos de registro del usuario.
+     * @return Una respuesta con los datos de autenticación del usuario registrado.
+     * @throws IllegalArgumentException Si las contraseñas no coinciden.
+     * @throws UserAlreadyExistsException Si el usuario o DNI ya está registrado.
+     * @throws ReniecException Si no se puede validar el DNI en RENIEC.
+     */
     @Override
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
@@ -46,14 +56,14 @@ public class AuthServiceImpl implements AuthService {
         ReniecResponseDTO reniecData;
         try {
             reniecData = reniecService.consultarDni(request.getDni());
-            log.info("✅ Datos obtenidos de RENIEC:");
+            log.info(" Datos obtenidos de RENIEC:");
             log.info("   - DNI: {}", reniecData.getDocumentNumber());
             log.info("   - Nombres: {}", reniecData.getFirstName());
             log.info("   - Apellido Paterno: {}", reniecData.getFirstLastName());
             log.info("   - Apellido Materno: {}", reniecData.getSecondLastName());
             log.info("   - Nombre Completo: {}", reniecData.getFullName());
         } catch (ReniecException e) {
-            log.error("❌ Error al consultar RENIEC: {}", e.getMessage());
+            log.error(" Error al consultar RENIEC: {}", e.getMessage());
             throw new ReniecException("No se pudo validar el DNI. Verifique que sea correcto.");
         }
         
@@ -72,10 +82,14 @@ public class AuthServiceImpl implements AuthService {
         usuario.setUsuario(request.getUsuario());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         
+        usuario.setCelular(request.getCelular());
+        log.info(" Celular guardado: {}", request.getCelular());
+        // ==========================================
+        
         // Guardar el usuario en la base de datos
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         
-        log.info("✅ Usuario registrado exitosamente en BD:");
+        log.info(" Usuario registrado exitosamente en BD:");
         log.info("   - ID: {}", usuarioGuardado.getId());
         log.info("   - DNI: {}", usuarioGuardado.getDni());
         log.info("   - Nombres: {}", usuarioGuardado.getNombres());
@@ -83,6 +97,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("   - Apellido Materno: {}", usuarioGuardado.getApellidoMaterno());
         log.info("   - Nombre Completo: {}", usuarioGuardado.getNombreCompleto());
         log.info("   - Usuario: {}", usuarioGuardado.getUsuario());
+        log.info("   - Celular: {}", usuarioGuardado.getCelular());
         
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuarioGuardado.getUsuario());
@@ -94,28 +109,66 @@ public class AuthServiceImpl implements AuthService {
                 .dni(usuarioGuardado.getDni())
                 .nombreCompleto(usuarioGuardado.getNombreCompleto())
                 .usuario(usuarioGuardado.getUsuario())
+                .celular(usuarioGuardado.getCelular())  
                 .mensaje("Cuenta creada exitosamente")
                 .build();
     }
-    
+
+    /**
+     * Inicia sesión con las credenciales del usuario.
+     * Permite iniciar sesión con DNI, celular o nombre de usuario.
+     *
+     * @param request Los datos de login (usuario y contraseña).
+     * @return Una respuesta con los datos de autenticación del usuario.
+     * @throws BadCredentialsException Si las credenciales son incorrectas.
+     */
     @Override
     @Transactional(readOnly = true)
     public AuthResponseDTO login(LoginRequestDTO request) {
-        
-        // Buscar usuario
-        Usuario usuario = usuarioRepository.findByUsuario(request.getUsuario())
-                .orElseThrow(() -> new BadCredentialsException("Usuario o contraseña incorrectos"));
-        
-        // Verificar contraseña
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+
+        String identificador = request.getUsuario();
+        log.info("Intento de login con identificador: {}", identificador);
+
+        // Buscar usuario por DNI, Celular o Usuario
+        Usuario usuario = null;
+
+        // Intentar buscar por DNI (8 dígitos)
+        if (identificador.matches("^[0-9]{8}$")) {
+            log.info("   → Buscando por DNI...");
+            usuario = usuarioRepository.findByDni(identificador).orElse(null);
+        }
+
+        // Si no se encontró, intentar buscar por Celular (9 dígitos)
+        if (usuario == null && identificador.matches("^[0-9]{9}$")) {
+            log.info("   → Buscando por Celular...");
+            usuario = usuarioRepository.findByCelular(identificador).orElse(null);
+        }
+
+        // Si no se encontró, buscar por nombre de usuario
+        if (usuario == null) {
+            log.info("   → Buscando por Usuario...");
+            usuario = usuarioRepository.findByUsuario(identificador).orElse(null);
+        }
+
+        // Si no se encontro, lanzar error
+        if (usuario == null) {
+            log.error("Usuario no encontrado con identificador: {}", identificador);
             throw new BadCredentialsException("Usuario o contraseña incorrectos");
         }
-        
+
+        log.info("Usuario encontrado: {}", usuario.getUsuario());
+
+        // Verificar contraseña
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+            log.error("Contraseña incorrecta para usuario: {}", usuario.getUsuario());
+            throw new BadCredentialsException("Usuario o contraseña incorrectos");
+        }
+
         // Generar token JWT
         String token = jwtTokenProvider.generateToken(usuario.getUsuario());
-        
-        log.info("✅ Usuario autenticado: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
-        
+
+        log.info("Login exitoso para: {} - {}", usuario.getUsuario(), usuario.getNombreCompleto());
+
         return AuthResponseDTO.builder()
                 .token(token)
                 .type("Bearer")

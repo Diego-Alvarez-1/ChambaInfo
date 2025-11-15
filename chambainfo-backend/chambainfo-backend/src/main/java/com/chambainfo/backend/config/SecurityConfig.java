@@ -18,25 +18,44 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
+    /**
+     * Configura la cadena de filtros de seguridad de Spring Security.
+     * Define las rutas públicas, las rutas protegidas y el filtro JWT.
+     *
+     * @param http El objeto HttpSecurity para configurar la seguridad.
+     * @return La cadena de filtros de seguridad configurada.
+     * @throws Exception Si ocurre un error en la configuración.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> 
+                .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/empleos").permitAll()
+                .requestMatchers("/empleos/{id}").permitAll()
+                .requestMatchers("/empleos/empleador/**").permitAll()
+                .requestMatchers("/postulaciones/**").authenticated()
+                .requestMatchers("/documentos/**").authenticated()
+                .requestMatchers("/empleador/**").authenticated()  // AGREGAR ESTA LÍNEA
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated()
+        )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
-    
+
+    /**
+     * Configura el codificador de contraseñas BCrypt.
+     *
+     * @return Una instancia de BCryptPasswordEncoder.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
