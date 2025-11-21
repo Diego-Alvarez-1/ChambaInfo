@@ -148,6 +148,60 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Filtros de Categoría y Ordenamiento -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filtrar por:"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFiltroCategoria"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="12dp"
+                    android:text="Todas"
+                    android:textSize="13sp"
+                    android:textColor="@color/primary_blue"
+                    app:strokeColor="@color/primary_blue"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_filter"
+                    app:iconTint="@color/primary_blue"
+                    app:iconSize="18dp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOrdenar"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Recientes"
+                    android:textSize="13sp"
+                    android:textColor="@color/primary_blue"
+                    app:strokeColor="@color/primary_blue"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_sort"
+                    app:iconTint="@color/primary_blue"
+                    app:iconSize="18dp" />
+
+            </LinearLayout>
+
             <!-- Categorías -->
 
             <!-- Atención al Cliente -->

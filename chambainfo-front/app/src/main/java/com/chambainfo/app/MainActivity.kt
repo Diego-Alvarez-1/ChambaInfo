@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tokenManager: TokenManager
 
     private var todosLosEmpleos = listOf<Empleo>()
+    private var categoriaSeleccionada: String = "Todas"
+    private var ordenActual: String = "Recientes" // "Recientes" o "Antiguos"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,7 +118,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupObservers() {
         empleoViewModel.empleos.observe(this) { empleos ->
             todosLosEmpleos = empleos
-            mostrarEmpleosPorCategoria(empleos)
+            aplicarFiltrosYOrden()
         }
 
         empleoViewModel.loading.observe(this) { isLoading ->
@@ -271,7 +273,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun filtrarEmpleos(query: String) {
         if (query.isEmpty()) {
-            mostrarEmpleosPorCategoria(todosLosEmpleos)
+            aplicarFiltrosYOrden()
         } else {
             val empleosFiltrados = todosLosEmpleos.filter { empleo ->
                 val nombre = empleo.nombreEmpleo.lowercase()
@@ -343,6 +345,16 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, com.chambainfo.app.ui.trabajador.MisPostulacionesActivity::class.java)
             startActivity(intent)
         }
+
+        // Filtro por categoría
+        binding.btnFiltroCategoria.setOnClickListener {
+            mostrarDialogoFiltroCategoria()
+        }
+
+        // Botón ordenar
+        binding.btnOrdenar.setOnClickListener {
+            cambiarOrden()
+        }
     }
 
     private fun mostrarMenuPerfil() {
@@ -405,5 +417,117 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         empleoViewModel.cargarEmpleos()
         verificarSesion()
+    }
+
+    /**
+     * Muestra un diálogo para seleccionar la categoría de empleos a filtrar.
+     */
+    private fun mostrarDialogoFiltroCategoria() {
+        val categorias = arrayOf(
+            "Todas",
+            "Atención al Cliente",
+            "Construcción",
+            "Cocina y Restaurantes",
+            "Limpieza",
+            "Delivery y Transporte",
+            "Otros"
+        )
+
+        val categoriaActualIndex = categorias.indexOf(categoriaSeleccionada)
+
+        AlertDialog.Builder(this)
+            .setTitle("Filtrar por categoría")
+            .setSingleChoiceItems(categorias, categoriaActualIndex) { dialog, which ->
+                categoriaSeleccionada = categorias[which]
+                binding.btnFiltroCategoria.text = categoriaSeleccionada
+                aplicarFiltrosYOrden()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    /**
+     * Cambia el orden de los empleos entre recientes y antiguos.
+     */
+    private fun cambiarOrden() {
+        ordenActual = if (ordenActual == "Recientes") "Antiguos" else "Recientes"
+        binding.btnOrdenar.text = ordenActual
+
+        // Cambiar el ícono según el orden
+        val iconoRes = if (ordenActual == "Recientes") {
+            R.drawable.ic_sort
+        } else {
+            R.drawable.ic_sort_reverse
+        }
+        binding.btnOrdenar.setIconResource(iconoRes)
+
+        aplicarFiltrosYOrden()
+    }
+
+    /**
+     * Aplica los filtros y el orden seleccionados a los empleos.
+     */
+    private fun aplicarFiltrosYOrden() {
+        var empleosFiltrados = todosLosEmpleos
+
+        // Filtrar por categoría
+        if (categoriaSeleccionada != "Todas") {
+            empleosFiltrados = when (categoriaSeleccionada) {
+                "Atención al Cliente" -> filtrarPorCategoria(empleosFiltrados, listOf(
+                    "cajero", "vendedor", "atencion", "atención", "recepcion", "recepción", "cliente"
+                ))
+                "Construcción" -> filtrarPorCategoria(empleosFiltrados, listOf(
+                    "albañil", "ayudante", "construccion", "construcción", "obrero", "maestro",
+                    "carpintero", "pintor", "electricista", "gasfitero", "soldador"
+                ))
+                "Cocina y Restaurantes" -> filtrarPorCategoria(empleosFiltrados, listOf(
+                    "cocinero", "mesero", "chef", "cocina", "restaurante", "parrillero",
+                    "pizzero", "repostero", "barista", "mozo"
+                ))
+                "Limpieza" -> filtrarPorCategoria(empleosFiltrados, listOf(
+                    "limpieza", "domestico", "doméstico", "empleada", "ama de casa", "niñera"
+                ))
+                "Delivery y Transporte" -> filtrarPorCategoria(empleosFiltrados, listOf(
+                    "delivery", "repartidor", "chofer", "conductor", "motorizado", "transporte"
+                ))
+                "Otros" -> {
+                    val todasLasCategorias = listOf(
+                        "cajero", "vendedor", "atencion", "atención", "recepcion", "recepción", "cliente",
+                        "albañil", "ayudante", "construccion", "construcción", "obrero", "maestro",
+                        "carpintero", "pintor", "electricista", "gasfitero", "soldador",
+                        "cocinero", "mesero", "chef", "cocina", "restaurante", "parrillero",
+                        "pizzero", "repostero", "barista", "mozo",
+                        "limpieza", "domestico", "doméstico", "empleada", "ama de casa", "niñera",
+                        "delivery", "repartidor", "chofer", "conductor", "motorizado", "transporte"
+                    )
+                    empleosFiltrados.filter { empleo ->
+                        val nombre = empleo.nombreEmpleo.lowercase()
+                        todasLasCategorias.none { nombre.contains(it) }
+                    }
+                }
+                else -> empleosFiltrados
+            }
+        }
+
+        // Ordenar por fecha
+        empleosFiltrados = if (ordenActual == "Recientes") {
+            empleosFiltrados.sortedByDescending { it.fechaPublicacion }
+        } else {
+            empleosFiltrados.sortedBy { it.fechaPublicacion }
+        }
+
+        // Mostrar resultados
+        mostrarEmpleosPorCategoria(empleosFiltrados)
+    }
+
+    /**
+     * Filtra empleos por palabras clave de categoría.
+     */
+    private fun filtrarPorCategoria(empleos: List<Empleo>, palabrasClave: List<String>): List<Empleo> {
+        return empleos.filter { empleo ->
+            val nombre = empleo.nombreEmpleo.lowercase()
+            palabrasClave.any { nombre.contains(it) }
+        }
     }
 }
