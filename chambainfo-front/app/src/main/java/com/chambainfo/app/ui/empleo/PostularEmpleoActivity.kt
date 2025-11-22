@@ -76,12 +76,16 @@ class PostularEmpleoActivity : AppCompatActivity() {
             result.onSuccess { postulacion ->
                 // Agregar notificación
                 lifecycleScope.launch {
-                    notificacionManager.agregarNotificacion(
-                        tipo = TipoNotificacion.POSTULACION_ENVIADA,
-                        titulo = "Postulación enviada",
-                        mensaje = "Tu postulación a \"$nombreEmpleo\" ha sido enviada",
-                        empleoId = empleoId
-                    )
+                    val userId = tokenManager.getUserId().first()
+                    if (userId != null) {
+                        notificacionManager.agregarNotificacion(
+                            userId = userId,
+                            tipo = TipoNotificacion.POSTULACION_ENVIADA,
+                            titulo = "Postulación enviada",
+                            mensaje = "Tu postulación a \"$nombreEmpleo\" ha sido enviada",
+                            empleoId = empleoId
+                        )
+                    }
                 }
 
                 mostrarDialogoExito()

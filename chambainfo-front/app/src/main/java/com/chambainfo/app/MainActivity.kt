@@ -71,10 +71,14 @@ class MainActivity : AppCompatActivity() {
     private fun verificarSesion() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
+            val userId = tokenManager.getUserId().first()
             val rol = tokenManager.getRol().first()
 
-            if (token != null) {
+            if (token != null && userId != null) {
                 binding.btnPerfil.visibility = View.VISIBLE
+
+                // Cargar notificaciones
+                actualizarBadgeNotificaciones(userId)
 
                 // Mostrar botón publicar solo si es EMPLEADOR
                 if (rol == "EMPLEADOR") {
@@ -88,15 +92,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun cargarNotificaciones() {
-        lifecycleScope.launch {
-            val token = tokenManager.getToken().first()
-            if (token != null) {
-                // Actualizar badge de notificaciones
-                actualizarBadgeNotificaciones()
-            }
-        }
-    }
+
 
     private fun verificarRolYRedirigir() {
         lifecycleScope.launch {
@@ -428,7 +424,14 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         empleoViewModel.cargarEmpleos()
         verificarSesion()
-        actualizarBadgeNotificaciones()
+
+        // Actualizar badge si hay usuario logueado
+        lifecycleScope.launch {
+            val userId = tokenManager.getUserId().first()
+            if (userId != null) {
+                actualizarBadgeNotificaciones(userId)
+            }
+        }
     }
 
     /**
@@ -560,7 +563,9 @@ class MainActivity : AppCompatActivity() {
         val tvMarcarTodasLeidas = popupView.findViewById<TextView>(R.id.tvMarcarTodasLeidas)
 
         lifecycleScope.launch {
-            notificacionManager.obtenerNotificaciones().collect { notificaciones ->
+            val userId = tokenManager.getUserId().first() ?: return@launch
+
+            notificacionManager.obtenerNotificaciones(userId).collect { notificaciones ->
                 if (notificaciones.isEmpty()) {
                     rvNotificaciones.visibility = View.GONE
                     tvSinNotificaciones.visibility = View.VISIBLE
@@ -570,7 +575,7 @@ class MainActivity : AppCompatActivity() {
 
                     val adapter = NotificacionesAdapter(notificaciones) { notificacion ->
                         lifecycleScope.launch {
-                            notificacionManager.marcarComoLeida(notificacion.id)
+                            notificacionManager.marcarComoLeida(userId, notificacion.id)
                             // TODO: Navegar a la pantalla correspondiente
                             if (notificacion.empleoId != null) {
                                 val intent = Intent(this@MainActivity, PostulacionesEmpleoActivity::class.java)
@@ -589,20 +594,20 @@ class MainActivity : AppCompatActivity() {
 
         tvMarcarTodasLeidas.setOnClickListener {
             lifecycleScope.launch {
-                notificacionManager.marcarTodasComoLeidas()
+                val userId = tokenManager.getUserId().first() ?: return@launch
+                notificacionManager.marcarTodasComoLeidas(userId)
                 popupWindow.dismiss()
             }
         }
 
         popupWindow.showAsDropDown(binding.btnNotificaciones, 0, 0, Gravity.END)
     }
-
     /**
      * Actualiza el badge de notificaciones no leídas.
      */
-    private fun actualizarBadgeNotificaciones() {
+    private fun actualizarBadgeNotificaciones(userId: Long) {
         lifecycleScope.launch {
-            notificacionManager.contarNoLeidas().collect { cantidad ->
+            notificacionManager.contarNoLeidas(userId).collect { cantidad ->
                 if (cantidad > 0) {
                     binding.tvBadgeNotificaciones.visibility = View.VISIBLE
                     binding.tvBadgeNotificaciones.text = if (cantidad > 9) "9+" else cantidad.toString()

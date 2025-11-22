@@ -11,6 +11,7 @@ import com.chambainfo.app.data.model.TipoNotificacion
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.*
 
@@ -19,21 +20,27 @@ private val Context.notificacionDataStore: DataStore<Preferences> by preferences
 class NotificacionManager(private val context: Context) {
 
     companion object {
-        private val NOTIFICACIONES_KEY = stringPreferencesKey("notificaciones_list")
         private val gson = Gson()
+
+        // Función para generar la key única por usuario
+        private fun getNotificacionesKey(userId: Long): Preferences.Key<String> {
+            return stringPreferencesKey("notificaciones_user_$userId")
+        }
     }
 
     /**
-     * Agrega una nueva notificación.
+     * Agrega una nueva notificación para un usuario específico.
      */
     suspend fun agregarNotificacion(
+        userId: Long,
         tipo: TipoNotificacion,
         titulo: String,
         mensaje: String,
         empleoId: Long? = null
     ) {
         context.notificacionDataStore.edit { prefs ->
-            val notificacionesJson = prefs[NOTIFICACIONES_KEY] ?: "[]"
+            val key = getNotificacionesKey(userId)
+            val notificacionesJson = prefs[key] ?: "[]"
             val notificaciones = gson.fromJson<MutableList<Notificacion>>(
                 notificacionesJson,
                 object : TypeToken<MutableList<Notificacion>>() {}.type
@@ -56,16 +63,17 @@ class NotificacionManager(private val context: Context) {
                 notificaciones.removeAt(notificaciones.size - 1)
             }
 
-            prefs[NOTIFICACIONES_KEY] = gson.toJson(notificaciones)
+            prefs[key] = gson.toJson(notificaciones)
         }
     }
 
     /**
-     * Obtiene todas las notificaciones.
+     * Obtiene todas las notificaciones de un usuario específico.
      */
-    fun obtenerNotificaciones(): Flow<List<Notificacion>> {
+    fun obtenerNotificaciones(userId: Long): Flow<List<Notificacion>> {
         return context.notificacionDataStore.data.map { prefs ->
-            val notificacionesJson = prefs[NOTIFICACIONES_KEY] ?: "[]"
+            val key = getNotificacionesKey(userId)
+            val notificacionesJson = prefs[key] ?: "[]"
             gson.fromJson(
                 notificacionesJson,
                 object : TypeToken<List<Notificacion>>() {}.type
@@ -74,20 +82,21 @@ class NotificacionManager(private val context: Context) {
     }
 
     /**
-     * Obtiene el contador de notificaciones no leídas.
+     * Obtiene el contador de notificaciones no leídas de un usuario.
      */
-    fun contarNoLeidas(): Flow<Int> {
-        return obtenerNotificaciones().map { notificaciones ->
+    fun contarNoLeidas(userId: Long): Flow<Int> {
+        return obtenerNotificaciones(userId).map { notificaciones ->
             notificaciones.count { !it.leida }
         }
     }
 
     /**
-     * Marca una notificación como leída.
+     * Marca una notificación como leída para un usuario específico.
      */
-    suspend fun marcarComoLeida(notificacionId: Long) {
+    suspend fun marcarComoLeida(userId: Long, notificacionId: Long) {
         context.notificacionDataStore.edit { prefs ->
-            val notificacionesJson = prefs[NOTIFICACIONES_KEY] ?: "[]"
+            val key = getNotificacionesKey(userId)
+            val notificacionesJson = prefs[key] ?: "[]"
             val notificaciones = gson.fromJson<MutableList<Notificacion>>(
                 notificacionesJson,
                 object : TypeToken<MutableList<Notificacion>>() {}.type
@@ -96,33 +105,35 @@ class NotificacionManager(private val context: Context) {
             val index = notificaciones.indexOfFirst { it.id == notificacionId }
             if (index != -1) {
                 notificaciones[index] = notificaciones[index].copy(leida = true)
-                prefs[NOTIFICACIONES_KEY] = gson.toJson(notificaciones)
+                prefs[key] = gson.toJson(notificaciones)
             }
         }
     }
 
     /**
-     * Marca todas las notificaciones como leídas.
+     * Marca todas las notificaciones como leídas para un usuario específico.
      */
-    suspend fun marcarTodasComoLeidas() {
+    suspend fun marcarTodasComoLeidas(userId: Long) {
         context.notificacionDataStore.edit { prefs ->
-            val notificacionesJson = prefs[NOTIFICACIONES_KEY] ?: "[]"
+            val key = getNotificacionesKey(userId)
+            val notificacionesJson = prefs[key] ?: "[]"
             val notificaciones = gson.fromJson<MutableList<Notificacion>>(
                 notificacionesJson,
                 object : TypeToken<MutableList<Notificacion>>() {}.type
             ) ?: mutableListOf()
 
             val notificacionesLeidas = notificaciones.map { it.copy(leida = true) }
-            prefs[NOTIFICACIONES_KEY] = gson.toJson(notificacionesLeidas)
+            prefs[key] = gson.toJson(notificacionesLeidas)
         }
     }
 
     /**
-     * Limpia todas las notificaciones.
+     * Limpia todas las notificaciones de un usuario específico.
      */
-    suspend fun limpiarNotificaciones() {
+    suspend fun limpiarNotificaciones(userId: Long) {
         context.notificacionDataStore.edit { prefs ->
-            prefs[NOTIFICACIONES_KEY] = "[]"
+            val key = getNotificacionesKey(userId)
+            prefs[key] = "[]"
         }
     }
 }

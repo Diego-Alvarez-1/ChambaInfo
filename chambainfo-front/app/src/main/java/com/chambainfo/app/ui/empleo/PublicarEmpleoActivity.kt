@@ -63,12 +63,16 @@ class PublicarEmpleoActivity : AppCompatActivity() {
             result.onSuccess { empleo ->
                 // Agregar notificación
                 lifecycleScope.launch {
-                    notificacionManager.agregarNotificacion(
-                        tipo = TipoNotificacion.EMPLEO_PUBLICADO,
-                        titulo = "Empleo publicado",
-                        mensaje = "Tu empleo \"${empleo.nombreEmpleo}\" ha sido publicado exitosamente",
-                        empleoId = empleo.id
-                    )
+                    val userId = tokenManager.getUserId().first()
+                    if (userId != null) {
+                        notificacionManager.agregarNotificacion(
+                            userId = userId,
+                            tipo = TipoNotificacion.EMPLEO_PUBLICADO,
+                            titulo = "Empleo publicado",
+                            mensaje = "Tu empleo \"${empleo.nombreEmpleo}\" ha sido publicado exitosamente",
+                            empleoId = empleo.id
+                        )
+                    }
                 }
 
                 mostrarDialogoExito()

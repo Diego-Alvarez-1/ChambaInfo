@@ -88,14 +88,16 @@ class MisPostulacionesActivity : AppCompatActivity() {
 
         // Observar cuando se carga un empleo para abrir WhatsApp
         empleoViewModel.empleoDetalle.observe(this) { empleo ->
-            if (empleo.mostrarNumero) {
-                abrirWhatsApp(empleo.celularContacto)
-            } else {
-                Toast.makeText(
-                    this,
-                    "El empleador no ha compartido su número de contacto",
-                    Toast.LENGTH_LONG
-                ).show()
+            empleo?.let {
+                if (it.mostrarNumero) {
+                    abrirWhatsApp(it.celularContacto)
+                } else {
+                    Toast.makeText(
+                        this,
+                        "El empleador no ha compartido su número de contacto",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
@@ -104,10 +106,11 @@ class MisPostulacionesActivity : AppCompatActivity() {
         }
 
         postulacionViewModel.error.observe(this) { errorMsg ->
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+            if (errorMsg.isNotEmpty()) {
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
     private fun setupClickListeners() {
         binding.btnBack.setOnClickListener {
             finish()

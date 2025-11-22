@@ -32,6 +32,7 @@ class DetalleEmpleoActivity : AppCompatActivity() {
     private var empleoId: Long = 0
     private var nombreEmpleo: String = ""
     private var mostrarNumero: Boolean = true
+    private var celularContacto: String = ""
 
     // Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,12 +97,15 @@ class DetalleEmpleoActivity : AppCompatActivity() {
 
     private fun observeEmpleoDetalle() {
         empleoViewModel.empleoDetalle.observe(this) { empleo ->
-            nombreEmpleo = empleo.nombreEmpleo
-            mostrarNumero = empleo.mostrarNumero
+            empleo?.let {
+                nombreEmpleo = it.nombreEmpleo
+                mostrarNumero = it.mostrarNumero
+                celularContacto = it.celularContacto
 
-            actualizarDatosEmpleo(empleo)
-            actualizarInfoAdicional(empleo)
-            verificarPropietarioEmpleo(empleo)
+                actualizarDatosEmpleo(it)
+                actualizarInfoAdicional(it)
+                verificarPropietarioEmpleo(it)
+            }
         }
     }
 
@@ -165,7 +169,9 @@ class DetalleEmpleoActivity : AppCompatActivity() {
 
     private fun observeErrors() {
         empleoViewModel.error.observe(this) { errorMsg ->
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+            if (!errorMsg.isNullOrEmpty()) {
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -254,15 +260,14 @@ class DetalleEmpleoActivity : AppCompatActivity() {
 
     // External Actions
     private fun abrirWhatsApp() {
-        val celular = empleoViewModel.empleoDetalle.value?.celularContacto
-        if (celular != null && celular != "Número oculto") {
-            abrirWhatsApp(celular)
+        if (celularContacto.isNotEmpty() && celularContacto != "Número oculto") {
+            abrirWhatsAppConNumero(celularContacto)
         } else {
             Toast.makeText(this, "Número no disponible", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun abrirWhatsApp(celular: String) {
+    private fun abrirWhatsAppConNumero(celular: String) {
         try {
             val numeroLimpio = celular.replace(Regex("[^0-9]"), "")
             val intent = Intent(Intent.ACTION_VIEW).apply {
