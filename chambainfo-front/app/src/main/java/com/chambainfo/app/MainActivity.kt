@@ -4,7 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -12,24 +17,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.chambainfo.app.R
 import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.data.model.Empleo
+import com.chambainfo.app.data.model.Notificacion
 import com.chambainfo.app.databinding.ActivityMainBinding
 import com.chambainfo.app.ui.auth.LoginActivity
 import com.chambainfo.app.ui.empleo.DetalleEmpleoActivity
 import com.chambainfo.app.ui.empleo.EmpleoAdapter
+import com.chambainfo.app.ui.empleador.PostulacionesEmpleoActivity
 import com.chambainfo.app.ui.empleador.EmpleadorDashboardActivity
 import com.chambainfo.app.ui.profile.PerfilActivity
+import com.chambainfo.app.utils.NotificacionManager
 import com.chambainfo.app.viewmodel.EmpleoViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val empleoViewModel: EmpleoViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
+    private lateinit var notificacionManager: NotificacionManager
 
     private var todosLosEmpleos = listOf<Empleo>()
     private var categoriaSeleccionada: String = "Todas"
@@ -44,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         tokenManager = TokenManager(this)
+        notificacionManager = NotificacionManager(this)
 
         verificarRolYRedirigir()
 
@@ -61,13 +73,11 @@ class MainActivity : AppCompatActivity() {
             val token = tokenManager.getToken().first()
             if (token != null) {
                 binding.btnPerfil.visibility = View.VISIBLE
-                binding.layoutNotificacionesTrabajador.root.visibility = View.VISIBLE
-                binding.btnMisPostulaciones.visibility = View.VISIBLE // AGREGAR ESTA LÍNEA
+                binding.btnNotificaciones.visibility = View.VISIBLE
                 cargarNotificaciones()
             } else {
                 binding.btnPerfil.visibility = View.GONE
-                binding.layoutNotificacionesTrabajador.root.visibility = View.GONE
-                binding.btnMisPostulaciones.visibility = View.GONE // AGREGAR ESTA LÍNEA
+                binding.btnNotificaciones.visibility = View.GONE
             }
         }
     }
@@ -76,8 +86,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
             if (token != null) {
-                // Por ahora ocultar el badge hasta implementar sistema completo de notificaciones
-                binding.layoutNotificacionesTrabajador.tvBadgeCount.visibility = View.GONE
+                // Actualizar badge de notificaciones
+                actualizarBadgeNotificaciones()
             }
         }
     }
@@ -337,13 +347,9 @@ class MainActivity : AppCompatActivity() {
             mostrarMenuPerfil()
         }
 
-        binding.layoutNotificacionesTrabajador.btnNotificaciones.setOnClickListener {
-            Toast.makeText(this, "Notificaciones próximamente", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.btnMisPostulaciones.setOnClickListener {
-            val intent = Intent(this, com.chambainfo.app.ui.trabajador.MisPostulacionesActivity::class.java)
-            startActivity(intent)
+        // Botón de notificaciones
+        binding.btnNotificaciones.setOnClickListener {
+            mostrarPopupNotificaciones()
         }
 
         // Filtro por categoría
@@ -397,8 +403,7 @@ class MainActivity : AppCompatActivity() {
             ).show()
 
             binding.btnPerfil.visibility = View.GONE
-            binding.layoutNotificacionesTrabajador.root.visibility = View.GONE
-            binding.btnMisPostulaciones.visibility = View.GONE // AGREGAR ESTA LÍNEA
+            binding.btnNotificaciones.visibility = View.GONE
 
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -417,6 +422,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         empleoViewModel.cargarEmpleos()
         verificarSesion()
+        actualizarBadgeNotificaciones()
     }
 
     /**
@@ -528,6 +534,133 @@ class MainActivity : AppCompatActivity() {
         return empleos.filter { empleo ->
             val nombre = empleo.nombreEmpleo.lowercase()
             palabrasClave.any { nombre.contains(it) }
+        }
+    }
+
+    /**
+     * Muestra un popup con las notificaciones del usuario.
+     */
+    private fun mostrarPopupNotificaciones() {
+        val popupView = layoutInflater.inflate(R.layout.popup_notificaciones, null)
+        val popupWindow = PopupWindow(
+            popupView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        val rvNotificaciones = popupView.findViewById<RecyclerView>(R.id.rvNotificaciones)
+        val tvSinNotificaciones = popupView.findViewById<TextView>(R.id.tvSinNotificaciones)
+        val tvMarcarTodasLeidas = popupView.findViewById<TextView>(R.id.tvMarcarTodasLeidas)
+
+        lifecycleScope.launch {
+            notificacionManager.obtenerNotificaciones().collect { notificaciones ->
+                if (notificaciones.isEmpty()) {
+                    rvNotificaciones.visibility = View.GONE
+                    tvSinNotificaciones.visibility = View.VISIBLE
+                } else {
+                    rvNotificaciones.visibility = View.VISIBLE
+                    tvSinNotificaciones.visibility = View.GONE
+
+                    val adapter = NotificacionesAdapter(notificaciones) { notificacion ->
+                        lifecycleScope.launch {
+                            notificacionManager.marcarComoLeida(notificacion.id)
+                            // TODO: Navegar a la pantalla correspondiente
+                            if (notificacion.empleoId != null) {
+                                val intent = Intent(this@MainActivity, PostulacionesEmpleoActivity::class.java)
+                                intent.putExtra("EMPLEO_ID", notificacion.empleoId)
+                                startActivity(intent)
+                            }
+                            popupWindow.dismiss()
+                        }
+                    }
+
+                    rvNotificaciones.layoutManager = LinearLayoutManager(this@MainActivity)
+                    rvNotificaciones.adapter = adapter
+                }
+            }
+        }
+
+        tvMarcarTodasLeidas.setOnClickListener {
+            lifecycleScope.launch {
+                notificacionManager.marcarTodasComoLeidas()
+                popupWindow.dismiss()
+            }
+        }
+
+        popupWindow.showAsDropDown(binding.btnNotificaciones, 0, 0, Gravity.END)
+    }
+
+    /**
+     * Actualiza el badge de notificaciones no leídas.
+     */
+    private fun actualizarBadgeNotificaciones() {
+        lifecycleScope.launch {
+            notificacionManager.contarNoLeidas().collect { cantidad ->
+                if (cantidad > 0) {
+                    binding.tvBadgeNotificaciones.visibility = View.VISIBLE
+                    binding.tvBadgeNotificaciones.text = if (cantidad > 9) "9+" else cantidad.toString()
+                } else {
+                    binding.tvBadgeNotificaciones.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    /**
+     * Adapter para mostrar notificaciones en el RecyclerView.
+     */
+    inner class NotificacionesAdapter(
+        private val notificaciones: List<Notificacion>,
+        private val onClick: (Notificacion) -> Unit
+    ) : RecyclerView.Adapter<NotificacionesAdapter.ViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_notificacion, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.bind(notificaciones[position])
+        }
+
+        override fun getItemCount(): Int = notificaciones.size
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val indicador: View = itemView.findViewById(R.id.indicadorNoLeida)
+            private val tvTitulo: TextView = itemView.findViewById(R.id.tvTituloNotificacion)
+            private val tvMensaje: TextView = itemView.findViewById(R.id.tvMensajeNotificacion)
+            private val tvFecha: TextView = itemView.findViewById(R.id.tvFechaNotificacion)
+
+            fun bind(notificacion: Notificacion) {
+                tvTitulo.text = notificacion.titulo
+                tvMensaje.text = notificacion.mensaje
+                tvFecha.text = calcularTiempoTranscurrido(notificacion.fecha)
+
+                indicador.visibility = if (notificacion.leida) View.INVISIBLE else View.VISIBLE
+
+                itemView.setOnClickListener {
+                    onClick(notificacion)
+                }
+            }
+
+            private fun calcularTiempoTranscurrido(fecha: Date): String {
+                val ahora = Date()
+                val diff = ahora.time - fecha.time
+
+                val minutos = diff / (1000 * 60)
+                val horas = diff / (1000 * 60 * 60)
+                val dias = diff / (1000 * 60 * 60 * 24)
+
+                return when {
+                    minutos < 1 -> "justo ahora"
+                    minutos < 60 -> "hace $minutos min"
+                    horas < 24 -> "hace $horas h"
+                    dias < 7 -> "hace $dias días"
+                    else -> "hace ${dias / 7} semanas"
+                }
+            }
         }
     }
 }

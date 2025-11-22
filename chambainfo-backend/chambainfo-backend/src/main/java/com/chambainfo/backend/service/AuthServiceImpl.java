@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.chambainfo.backend.dto.ActualizarPerfilDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -178,4 +179,34 @@ public class AuthServiceImpl implements AuthService {
                 .mensaje("Inicio de sesión exitoso")
                 .build();
     }
+
+    /**
+     * Actualiza la información adicional del perfil del usuario.
+     */
+    @Override
+    @Transactional
+    public void actualizarPerfil(ActualizarPerfilDTO request, String usuarioAutenticado) {
+        Usuario usuario = usuarioRepository.findByUsuario(usuarioAutenticado)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizar email solo si se proporciona
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            usuario.setEmail(request.getEmail());
+        }
+
+        // Actualizar habilidades
+        if (request.getHabilidades() != null) {
+            usuario.setHabilidades(request.getHabilidades());
+        }
+
+        // Actualizar experiencia laboral
+        if (request.getExperienciaLaboral() != null) {
+            usuario.setExperienciaLaboral(request.getExperienciaLaboral());
+        }
+
+        usuarioRepository.save(usuario);
+
+        log.info("Perfil actualizado para usuario: {}", usuarioAutenticado);
+    }
+
 }

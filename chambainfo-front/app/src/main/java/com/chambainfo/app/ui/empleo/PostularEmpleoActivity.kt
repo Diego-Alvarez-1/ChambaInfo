@@ -10,7 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import com.chambainfo.app.R
 import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.data.model.PostulacionRequest
+import com.chambainfo.app.data.model.TipoNotificacion
 import com.chambainfo.app.databinding.ActivityPostularEmpleoBinding
+import com.chambainfo.app.utils.NotificacionManager
 import com.chambainfo.app.viewmodel.PostulacionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -20,6 +22,7 @@ class PostularEmpleoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostularEmpleoBinding
     private val postulacionViewModel: PostulacionViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
+    private lateinit var notificacionManager: NotificacionManager
     private var empleoId: Long = 0
     private var nombreEmpleo: String = ""
     private var empleadorNombre: String = ""
@@ -35,6 +38,7 @@ class PostularEmpleoActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         tokenManager = TokenManager(this)
+        notificacionManager = NotificacionManager(this)
 
         // Obtener datos del intent
         empleoId = intent.getLongExtra("EMPLEO_ID", 0)
@@ -70,6 +74,16 @@ class PostularEmpleoActivity : AppCompatActivity() {
     private fun setupObservers() {
         postulacionViewModel.postularResult.observe(this) { result ->
             result.onSuccess { postulacion ->
+                // Agregar notificación
+                lifecycleScope.launch {
+                    notificacionManager.agregarNotificacion(
+                        tipo = TipoNotificacion.POSTULACION_ENVIADA,
+                        titulo = "Postulación enviada",
+                        mensaje = "Tu postulación a \"$nombreEmpleo\" ha sido enviada",
+                        empleoId = empleoId
+                    )
+                }
+
                 mostrarDialogoExito()
             }
 

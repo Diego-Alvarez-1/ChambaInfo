@@ -67,7 +67,28 @@ class VerDocumentosActivity : AppCompatActivity() {
         tokenManager = TokenManager(this)
 
         setupClickListeners()
+        verificarPermisos()
         cargarDocumentos()
+    }
+
+    private fun verificarPermisos() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
+                    100
+                )
+            }
+        } else {
+            if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                    100
+                )
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -106,15 +127,18 @@ class VerDocumentosActivity : AppCompatActivity() {
     }
 
     private fun abrirSelectorImagen() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
+            type = "image/*"
+        }
         seleccionarImagenDni.launch(intent)
     }
 
     private fun abrirSelectorArchivoCul() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             type = "*/*"
             val mimeTypes = arrayOf("application/pdf", "image/jpeg", "image/jpg", "image/png")
             putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+            addCategory(Intent.CATEGORY_OPENABLE)
         }
         seleccionarArchivoCul.launch(intent)
     }

@@ -1,10 +1,8 @@
-
 package com.chambainfo.backend.controller;
 
-import com.chambainfo.backend.dto.AuthResponseDTO;
-import com.chambainfo.backend.dto.LoginRequestDTO;
-import com.chambainfo.backend.dto.RegisterRequestDTO;
-import com.chambainfo.backend.dto.ReniecResponseDTO;
+import com.chambainfo.backend.dto.*;
+import com.chambainfo.backend.entity.Usuario;
+import com.chambainfo.backend.repository.UsuarioRepository;
 import com.chambainfo.backend.service.AuthService;
 import com.chambainfo.backend.service.ReniecService;
 import jakarta.validation.Valid;
@@ -12,7 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @CrossOrigin(origins = "*")
 public class AuthController {
-    
+
+    private final UsuarioRepository usuarioRepository;
     private final AuthService authService;
     private final ReniecService reniecService;
 
@@ -47,7 +50,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     /**
      * Registra un nuevo usuario en el sistema.
      *
@@ -60,7 +63,7 @@ public class AuthController {
         AuthResponseDTO response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    
+
     /**
      * Inicia sesión con las credenciales del usuario.
      *
@@ -73,7 +76,7 @@ public class AuthController {
         AuthResponseDTO response = authService.login(request);
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Endpoint de prueba para verificar que la API está funcionando correctamente.
      *
@@ -83,4 +86,40 @@ public class AuthController {
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("API funcionando correctamente");
     }
+
+    /**
+     * Actualiza la información adicional del perfil del usuario.
+     *
+     * @param request Los datos a actualizar.
+     * @param authentication La información de autenticación del usuario.
+     * @return Una respuesta con mensaje de éxito.
+     */
+    @PutMapping("/actualizar-perfil")
+    public ResponseEntity<Map<String, String>> actualizarPerfil(
+            @Valid @RequestBody ActualizarPerfilDTO request,
+            Authentication authentication) {
+
+        log.info("Solicitud de actualización de perfil");
+
+        String usuarioAutenticado = authentication.getName();
+        authService.actualizarPerfil(request, usuarioAutenticado);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", "Perfil actualizado exitosamente");
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Obtiene la información del perfil del usuario autenticado.
+     */
+    @GetMapping("/perfil")
+    public ResponseEntity<Usuario> obtenerPerfil(Authentication authentication) {
+        String usuarioAutenticado = authentication.getName();
+        Usuario usuario = usuarioRepository.findByUsuario(usuarioAutenticado)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return ResponseEntity.ok(usuario);
+    }
+
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
     android:backgroundTint="@color/white">
@@ -14,49 +14,81 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header con nombre y estado -->
+        <!-- Header con nombre y botón archivar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvNombreTrabajador"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Juan Pérez Mamani"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvNombreTrabajador"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Juan Pérez Mamani"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDniTrabajador"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="DNI: 74254462"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnArchivar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_archive"
+                android:contentDescription="Archivar postulación" />
+
+        </LinearLayout>
+
+        <!-- Estado y Fecha -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvEstado"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_empleo_icon"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:text="Nuevo"
-                android:textColor="@color/accent_green"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:text="PENDIENTE"
+                android:textColor="@color/accent_orange"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_border_gray"
+                android:padding="4dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="hace 2 días"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
 
         </LinearLayout>
-
-        <!-- Fecha -->
-        <TextView
-            android:id="@+id/tvFecha"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="hace 3 min"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
 
         <!-- Celular -->
         <TextView
@@ -64,60 +96,54 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="+51 987 654 321"
-            android:textColor="@color/primary_blue"
+            android:text="Cel: +51 987 654 321"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
-            android:textStyle="bold" />
+            android:drawableStart="@android:drawable/ic_menu_call"
+            android:drawablePadding="4dp" />
 
         <!-- Mensaje -->
         <TextView
             android:id="@+id/tvMensaje"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Mensaje: Tengo experiencia como cajero y disponibilidad inmediata."
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
+            android:layout_marginTop="12dp"
+            android:text="Mensaje de la postulación..."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="2dp"
             android:maxLines="3"
             android:ellipsize="end" />
-
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
-            android:background="@color/border_gray" />
 
         <!-- Botones de acción -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal"
-            android:weightSum="2">
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnVerPerfil"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Ver perfil"
+                android:textSize="12sp"
+                android:textColor="@color/primary_blue"
+                app:strokeColor="@color/primary_blue"
+                app:cornerRadius="8dp" />
 
             <Button
                 android:id="@+id/btnResponderWhatsApp"
                 style="@style/Button.Primary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="Responder por WhatsApp"
-                android:textSize="13sp"
-                android:backgroundTint="@color/accent_green"
-                android:drawableStart="@drawable/ic_whatsapp"
-                android:drawablePadding="4dp" />
-
-            <Button
-                android:id="@+id/btnVerPerfil"
-                style="@style/Button.Secondary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:text="Ver perfil"
-                android:textSize="13sp" />
+                android:text="WhatsApp"
+                android:textSize="12sp"
+                app:backgroundTint="@color/accent_green"
+                app:cornerRadius="8dp" />
 
         </LinearLayout>
 

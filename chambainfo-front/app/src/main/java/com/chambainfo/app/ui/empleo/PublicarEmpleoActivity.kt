@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.chambainfo.app.data.local.TokenManager
 import com.chambainfo.app.data.model.PublicarEmpleoRequest
+import com.chambainfo.app.data.model.TipoNotificacion
 import com.chambainfo.app.databinding.ActivityPublicarEmpleoBinding
+import com.chambainfo.app.utils.NotificacionManager
 import com.chambainfo.app.viewmodel.EmpleoViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -19,6 +21,7 @@ class PublicarEmpleoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPublicarEmpleoBinding
     private val empleoViewModel: EmpleoViewModel by viewModels()
     private lateinit var tokenManager: TokenManager
+    private lateinit var notificacionManager: NotificacionManager
 
     /**
      * Inicializa la actividad de publicar empleo y configura los componentes principales.
@@ -31,6 +34,7 @@ class PublicarEmpleoActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         tokenManager = TokenManager(this)
+        notificacionManager = NotificacionManager(this)
 
         setupObservers()
         setupClickListeners()
@@ -57,6 +61,16 @@ class PublicarEmpleoActivity : AppCompatActivity() {
     private fun setupObservers() {
         empleoViewModel.publicarResult.observe(this) { result ->
             result.onSuccess { empleo ->
+                // Agregar notificación
+                lifecycleScope.launch {
+                    notificacionManager.agregarNotificacion(
+                        tipo = TipoNotificacion.EMPLEO_PUBLICADO,
+                        titulo = "Empleo publicado",
+                        mensaje = "Tu empleo \"${empleo.nombreEmpleo}\" ha sido publicado exitosamente",
+                        empleoId = empleo.id
+                    )
+                }
+
                 mostrarDialogoExito()
             }
 

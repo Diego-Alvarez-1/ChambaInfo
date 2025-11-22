@@ -221,4 +221,21 @@ interface ApiService {
         @Body body: Map<String, String>
     ): Response<PostulacionResponse>
 
+    /**
+     * Actualiza la información del perfil del usuario.
+     */
+    @PUT("auth/actualizar-perfil")
+    suspend fun actualizarPerfil(
+        @Header("Authorization") token: String,
+        @Body request: ActualizarPerfilRequest
+    ): Response<Map<String, String>>
+
+    /**
+     * Obtiene la información del perfil del usuario.
+     */
+    @GET("auth/perfil")
+    suspend fun obtenerPerfil(
+        @Header("Authorization") token: String
+    ): Response<Usuario>
+
 }

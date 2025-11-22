@@ -36,7 +36,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/test", "/auth/verificar-dni/**").permitAll()
+                        .requestMatchers("/auth/actualizar-perfil").authenticated()
                         .requestMatchers("/empleos").permitAll()
                         .requestMatchers("/empleos/{id}").permitAll()
                         .requestMatchers("/empleos/empleador/**").permitAll()

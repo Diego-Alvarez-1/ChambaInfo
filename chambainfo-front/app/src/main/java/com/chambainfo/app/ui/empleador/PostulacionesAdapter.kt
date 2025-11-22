@@ -1,50 +1,81 @@
 package com.chambainfo.app.ui.empleador
 
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.chambainfo.app.R
 import com.chambainfo.app.data.model.PostulacionResponse
-import com.chambainfo.app.databinding.ItemPostulacionBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PostulacionesAdapter(
-    private val onWhatsAppClick: (PostulacionResponse) -> Unit,
-    private val onVerPerfilClick: (PostulacionResponse) -> Unit
-) : ListAdapter<PostulacionResponse, PostulacionesAdapter.PostulacionViewHolder>(PostulacionDiffCallback()) {
+    private val postulaciones: List<PostulacionResponse>,
+    private val onArchivarClick: (PostulacionResponse) -> Unit
+) : RecyclerView.Adapter<PostulacionesAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostulacionViewHolder {
-        val binding = ItemPostulacionBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return PostulacionViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_postulacion, parent, false)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PostulacionViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(postulaciones[position])
     }
 
-    inner class PostulacionViewHolder(
-        private val binding: ItemPostulacionBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    override fun getItemCount(): Int = postulaciones.size
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvNombre: TextView = itemView.findViewById(R.id.tvNombreTrabajador)
+        private val tvDni: TextView = itemView.findViewById(R.id.tvDniTrabajador)
+        private val tvEstado: TextView = itemView.findViewById(R.id.tvEstado)
+        private val tvFecha: TextView = itemView.findViewById(R.id.tvFecha)
+        private val tvCelular: TextView = itemView.findViewById(R.id.tvCelular)
+        private val tvMensaje: TextView = itemView.findViewById(R.id.tvMensaje)
+        private val btnArchivar: ImageButton = itemView.findViewById(R.id.btnArchivar)
+        private val btnResponderWhatsApp: Button = itemView.findViewById(R.id.btnResponderWhatsApp)
+        private val btnVerPerfil: Button = itemView.findViewById(R.id.btnVerPerfil)
 
         fun bind(postulacion: PostulacionResponse) {
-            binding.tvNombreTrabajador.text = postulacion.trabajadorNombre
-            binding.tvEstado.text = postulacion.estado
-            binding.tvFecha.text = calcularTiempoTranscurrido(postulacion.fechaPostulacion)
-            binding.tvCelular.text = "+51 ${postulacion.trabajadorCelular}"
-            binding.tvMensaje.text = "Mensaje: ${postulacion.mensaje}"
+            tvNombre.text = postulacion.trabajadorNombre
+            tvDni.text = "DNI: ${postulacion.trabajadorDni}"
+            tvEstado.text = postulacion.estado
+            tvFecha.text = calcularTiempoTranscurrido(postulacion.fechaPostulacion)
+            tvCelular.text = "Cel: +51 ${postulacion.trabajadorCelular}"
+            tvMensaje.text = postulacion.mensaje
 
-            binding.btnResponderWhatsApp.setOnClickListener {
-                onWhatsAppClick(postulacion)
+            // Color del estado
+            when (postulacion.estado) {
+                "PENDIENTE" -> tvEstado.setTextColor(itemView.context.getColor(R.color.accent_orange))
+                "ACEPTADO" -> tvEstado.setTextColor(itemView.context.getColor(R.color.accent_green))
+                "RECHAZADO" -> tvEstado.setTextColor(itemView.context.getColor(R.color.accent_red))
             }
 
-            binding.btnVerPerfil.setOnClickListener {
-                onVerPerfilClick(postulacion)
+            btnArchivar.setOnClickListener {
+                onArchivarClick(postulacion)
+            }
+
+            btnResponderWhatsApp.setOnClickListener {
+                val mensaje = "Hola ${postulacion.trabajadorNombre}, vi tu postulación para el empleo de ${postulacion.nombreEmpleo}"
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://wa.me/51${postulacion.trabajadorCelular}?text=${Uri.encode(mensaje)}")
+                }
+                itemView.context.startActivity(intent)
+            }
+
+            btnVerPerfil.setOnClickListener {
+                // TODO: Navegar al perfil del trabajador
+                android.widget.Toast.makeText(
+                    itemView.context,
+                    "Ver perfil de ${postulacion.trabajadorNombre}",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -60,25 +91,16 @@ class PostulacionesAdapter(
                 val dias = diff / (1000 * 60 * 60 * 24)
 
                 when {
+                    minutos < 1 -> "justo ahora"
                     minutos < 60 -> "hace $minutos min"
                     horas < 24 -> "hace $horas h"
-                    dias == 1L -> "hace 1 día"
                     dias < 7 -> "hace $dias días"
-                    else -> "hace ${dias / 7} semanas"
+                    dias < 30 -> "hace ${dias / 7} sem"
+                    else -> "hace ${dias / 30} meses"
                 }
             } catch (e: Exception) {
                 "recientemente"
             }
-        }
-    }
-
-    class PostulacionDiffCallback : DiffUtil.ItemCallback<PostulacionResponse>() {
-        override fun areItemsTheSame(oldItem: PostulacionResponse, newItem: PostulacionResponse): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: PostulacionResponse, newItem: PostulacionResponse): Boolean {
-            return oldItem == newItem
         }
     }
 }

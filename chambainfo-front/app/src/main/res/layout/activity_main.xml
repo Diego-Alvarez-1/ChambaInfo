@@ -34,25 +34,36 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btnMisPostulaciones"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="Postulaciones"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:textAllCaps="false"
-                    android:visibility="gone" />
-
-                <include
-                    android:id="@+id/layoutNotificacionesTrabajador"
-                    layout="@layout/notification_badge"
+                <!-- Badge de notificaciones -->
+                <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:visibility="gone" />
+                    android:layout_marginEnd="8dp">
+
+                    <ImageButton
+                        android:id="@+id/btnNotificaciones"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_notifications"
+                        android:contentDescription="Notificaciones" />
+
+                    <TextView
+                        android:id="@+id/tvBadgeNotificaciones"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_badge_notificaciones"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
                 <ImageButton
                     android:id="@+id/btnPerfil"
@@ -63,6 +74,19 @@
                     android:src="@drawable/ic_person_white"
                     android:contentDescription="Mi Perfil"
                     android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPublicarEmpleo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/publicar_empleo"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="14sp"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="8dp"
+                    style="@style/Widget.MaterialComponents.Button" />
 
             </LinearLayout>
 

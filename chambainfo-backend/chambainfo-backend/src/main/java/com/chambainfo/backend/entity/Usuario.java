@@ -49,6 +49,9 @@ public class Usuario {
     @Column(length = 15)
     private String celular;
 
+    @Column(unique = true, length = 100)
+    private String email;
+
     // NUEVO: Campo ROL
     @Column(name = "rol", nullable = false, length = 20)
     private String rol = "TRABAJADOR";
