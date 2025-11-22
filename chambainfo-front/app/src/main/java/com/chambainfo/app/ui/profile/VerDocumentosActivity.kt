@@ -61,16 +61,21 @@ class VerDocumentosActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityVerDocumentosBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        tokenManager = TokenManager(this)
+        try {
+            binding = ActivityVerDocumentosBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        setupClickListeners()
-        verificarPermisos()
-        cargarDocumentos()
+            tokenManager = TokenManager(this)
+
+            setupClickListeners()
+            verificarPermisos()
+            cargarDocumentos()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al inicializar: ${e.message}", Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
-
     private fun verificarPermisos() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES)

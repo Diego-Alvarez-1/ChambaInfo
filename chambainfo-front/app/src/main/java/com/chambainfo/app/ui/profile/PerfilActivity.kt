@@ -76,7 +76,7 @@ class PerfilActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun guardarCambiosPerfil() {
         lifecycleScope.launch {
             try {

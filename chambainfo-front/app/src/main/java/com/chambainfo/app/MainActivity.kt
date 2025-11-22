@@ -71,17 +71,23 @@ class MainActivity : AppCompatActivity() {
     private fun verificarSesion() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()
+            val rol = tokenManager.getRol().first()
+
             if (token != null) {
                 binding.btnPerfil.visibility = View.VISIBLE
-                binding.btnNotificaciones.visibility = View.VISIBLE
-                cargarNotificaciones()
+
+                // Mostrar botón publicar solo si es EMPLEADOR
+                if (rol == "EMPLEADOR") {
+                    binding.btnPublicarEmpleo.visibility = View.VISIBLE
+                } else {
+                    binding.btnPublicarEmpleo.visibility = View.GONE
+                }
             } else {
                 binding.btnPerfil.visibility = View.GONE
-                binding.btnNotificaciones.visibility = View.GONE
+                binding.btnPublicarEmpleo.visibility = View.VISIBLE // Mostrar para incentivar registro
             }
         }
     }
-
     private fun cargarNotificaciones() {
         lifecycleScope.launch {
             val token = tokenManager.getToken().first()

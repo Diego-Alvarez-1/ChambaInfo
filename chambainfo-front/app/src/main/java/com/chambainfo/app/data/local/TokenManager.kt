@@ -31,7 +31,7 @@ class TokenManager(private val context: Context) {
         nombre: String,
         usuario: String,
         celular: String,
-        rol: String // NUEVO
+        rol: String = "TRABAJADOR"
     ) {
         context.dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token
@@ -40,7 +40,7 @@ class TokenManager(private val context: Context) {
             prefs[NOMBRE_KEY] = nombre
             prefs[USUARIO_KEY] = usuario
             prefs[CELULAR_KEY] = celular
-            prefs[ROL_KEY] = rol // NUEVO
+            prefs[ROL_KEY] = rol
         }
     }
 

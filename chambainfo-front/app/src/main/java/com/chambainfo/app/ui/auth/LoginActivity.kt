@@ -44,7 +44,7 @@ class LoginActivity : AppCompatActivity() {
                         nombre = authResponse.nombreCompleto,
                         usuario = authResponse.usuario,
                         celular = authResponse.celular,
-                        rol = authResponse.rol // NUEVO: guardar rol
+                        rol = authResponse.rol ?: "TRABAJADOR"
                     )
 
                     Toast.makeText(

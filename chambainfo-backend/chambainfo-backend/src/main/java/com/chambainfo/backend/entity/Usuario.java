@@ -53,8 +53,8 @@ public class Usuario {
     private String email;
 
     // NUEVO: Campo ROL
-    @Column(name = "rol", nullable = false, length = 20)
-    private String rol = "TRABAJADOR";
+    @Column(length = 20)
+    private String rol = "TRABAJADOR"; // TRABAJADOR o EMPLEADOR
 
     @Column(columnDefinition = "TEXT")
     private String habilidades;
