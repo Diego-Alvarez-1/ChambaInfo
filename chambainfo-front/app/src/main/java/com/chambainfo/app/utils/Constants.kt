@@ -1,5 +1,7 @@
 package com.chambainfo.app.utils
 
+import com.chambainfo.app.BuildConfig
+
 object Constants {
     // La URL se configura automáticamente según el buildType:
     // - debug: http://10.0.2.2:8080/api/ (emulador)

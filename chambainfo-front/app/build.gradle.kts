@@ -35,8 +35,10 @@ android {
         }
 
         release {
+            // Usamos la firma de debug para poder instalarlo sin crear un keystore propio todavía
+            signingConfig = signingConfigs.getByName("debug")
+            
             // Para PRODUCCIÓN (APK final con backend en la nube)
-            // Esta URL se actualizará después de desplegar en Railway
             buildConfigField("String", "BASE_URL", "\"https://chambainfo-production.up.railway.app/api/\"")
             isMinifyEnabled = false
             proguardFiles(
