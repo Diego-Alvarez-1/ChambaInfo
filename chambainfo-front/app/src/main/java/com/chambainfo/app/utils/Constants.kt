@@ -1,10 +1,9 @@
 package com.chambainfo.app.utils
 
 object Constants {
-    // Cambia esta IP por la IP de tu computadora en la red local
-    // Para encontrarla: cmd -> ipconfig -> IPv4
-    const val BASE_URL = "http://192.168.1.8:8080/api/"
-
-    // Si usas emulador de Android Studio: http://10.0.2.2:8080/api/
-    // Si usas dispositivo físico: http://TU_IP_LOCAL:8080/api/
+    // La URL se configura automáticamente según el buildType:
+    // - debug: http://10.0.2.2:8080/api/ (emulador)
+    // - debugDevice: http://192.168.20.54:8080/api/ (celular físico - configurable)
+    // - release: https://chambainfo-production.up.railway.app/api/ (producción)
+    const val BASE_URL = BuildConfig.BASE_URL
 }

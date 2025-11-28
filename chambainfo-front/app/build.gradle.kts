@@ -19,7 +19,25 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Para EMULADOR de Android Studio
+            // 10.0.2.2 es la IP especial del emulador que apunta a localhost
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/api/\"")
+            applicationIdSuffix = ".debug"
+        }
+
+        create("debugDevice") {
+            // Para CELULAR FÍSICO en desarrollo (casa, universidad, etc.)
+            // ⚠️ CAMBIA ESTA IP según tu red actual
+            buildConfigField("String", "BASE_URL", "\"http://192.168.20.54:8080/api/\"")
+            applicationIdSuffix = ".debugdevice"
+            isDebuggable = true
+        }
+
         release {
+            // Para PRODUCCIÓN (APK final con backend en la nube)
+            // Esta URL se actualizará después de desplegar en Railway
+            buildConfigField("String", "BASE_URL", "\"https://chambainfo-production.up.railway.app/api/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -39,6 +57,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true  // Habilitar BuildConfig para usar las constantes
     }
 }
 
